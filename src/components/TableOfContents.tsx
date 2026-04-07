@@ -138,7 +138,7 @@ export default function TableOfContents({ showProgress = true }: TableOfContents
             <button
               key={heading.id}
               onClick={() => scrollToHeading(heading.id)}
-              className={`w-full text-left py-1.5 px-2 rounded text-sm transition-all ${
+              className={`w-full text-left py-2 px-2 rounded text-sm transition-all min-h-[44px] flex items-center ${
                 activeId === heading.id
                   ? 'bg-[var(--color-primary)] text-[var(--color-bg)] font-semibold'
                   : 'text-secondary hover:text-primary hover:bg-[var(--color-bg)]'
@@ -147,7 +147,7 @@ export default function TableOfContents({ showProgress = true }: TableOfContents
                 paddingLeft: `${(heading.level - 2) * 12 + 8}px`,
               }}
             >
-              <span className="truncate block">{heading.text}</span>
+              <span className="truncate block leading-snug">{heading.text}</span>
             </button>
           ))}
         </nav>
@@ -156,7 +156,7 @@ export default function TableOfContents({ showProgress = true }: TableOfContents
         {showBackTop && (
           <button
             onClick={scrollToTop}
-            className="mt-6 w-full py-2 px-3 text-sm text-center border border-[var(--color-border)] rounded hover:bg-[var(--color-primary)] hover:text-[var(--color-bg)] transition-colors flex items-center justify-center gap-2"
+            className="mt-4 sm:mt-6 w-full py-2.5 px-3 text-sm text-center border border-[var(--color-border)] rounded hover:bg-[var(--color-primary)] hover:text-[var(--color-bg)] transition-colors flex items-center justify-center gap-2 min-h-[44px]"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
@@ -165,8 +165,8 @@ export default function TableOfContents({ showProgress = true }: TableOfContents
           </button>
         )}
 
-        {/* Quick jump */}
-        <div className="mt-4 pt-4 border-t border-[var(--color-border)]/20">
+        {/* Quick jump - hidden on mobile */}
+        <div className="mt-4 pt-4 border-t border-[var(--color-border)]/20 hidden sm:block">
           <div className="text-xs text-muted mb-2">快捷键</div>
           <div className="space-y-1 text-xs text-muted">
             <div><kbd className="px-1 bg-[var(--color-bg)] rounded">↑↓</kbd> 导航</div>

@@ -36,164 +36,97 @@ export default function TravelTimeline({ title, days }: TravelTimelineProps) {
   }, []);
 
   const getColor = (city: string) => CITY_COLORS[city] ?? DEFAULT_COLOR;
-
-  // City legend
   const cities = [...new Set(days.map((d) => d.city))];
 
   return (
-    <div style={{ margin: '2rem 0' }}>
+    <div className="my-5 sm:my-8">
       {title && (
-        <div style={{
-          fontSize: '0.75rem',
-          fontWeight: 600,
-          textTransform: 'uppercase',
-          letterSpacing: '0.05em',
-          color: 'var(--color-muted)',
-          marginBottom: '1rem',
-        }}>
+        <div className="text-[11px] sm:text-caption uppercase tracking-wider text-muted mb-3 sm:mb-4 font-semibold">
           {title}
         </div>
       )}
 
       {/* City legend */}
-      <div style={{
-        display: 'flex',
-        flexWrap: 'wrap',
-        gap: '12px',
-        marginBottom: '1.5rem',
-        padding: '12px 16px',
-        background: 'var(--color-surface)',
-        border: '1px solid var(--color-border)',
-        borderRadius: '8px',
-      }}>
+      <div className="flex flex-wrap gap-2 sm:gap-3 mb-4 sm:mb-6 p-3 sm:p-4 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg sm:rounded-xl">
         {cities.map((city) => {
           const color = getColor(city);
           return (
-            <div key={city} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <div style={{
-                width: '10px',
-                height: '10px',
-                borderRadius: '50%',
-                background: color.dot,
-              }} />
-              <span style={{ fontSize: '0.8rem', color: 'var(--color-secondary)' }}>{city}</span>
+            <div key={city} className="flex items-center gap-1.5 sm:gap-2">
+              <div
+                className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full flex-shrink-0"
+                style={{ background: color.dot }}
+              />
+              <span className="text-[11px] sm:text-sm text-secondary">{city}</span>
             </div>
           );
         })}
       </div>
 
       {/* Timeline */}
-      <div style={{ position: 'relative' }}>
-        {/* Vertical line */}
-        <div style={{
-          position: 'absolute',
-          left: '19px',
-          top: '24px',
-          bottom: '24px',
-          width: '2px',
-          background: 'var(--color-border)',
-        }} />
+      <div className="relative">
+        {/* Vertical line — position adapts to dot size */}
+        <div className="timeline-line absolute top-6 bottom-6 w-px bg-[var(--color-border)] hidden sm:block" />
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        <div className="flex flex-col gap-0.5 sm:gap-1">
           {days.map((day) => {
             const color = getColor(day.city);
             const isExpanded = expandedDay === day.day;
             const isHovered = hoveredDay === day.day;
 
             return (
-              <div key={day.day} style={{ position: 'relative' }}>
+              <div key={day.day} className="relative">
                 {/* Day card */}
                 <button
                   onClick={() => toggleDay(day.day)}
                   onMouseEnter={() => setHoveredDay(day.day)}
                   onMouseLeave={() => setHoveredDay(null)}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '16px',
-                    width: '100%',
-                    padding: '12px 16px 12px 0',
-                    background: 'transparent',
-                    border: 'none',
-                    cursor: 'pointer',
-                    textAlign: 'left',
-                    borderRadius: '8px',
-                    transition: 'background 0.15s',
-                  }}
+                  className="flex items-center gap-3 sm:gap-4 w-full py-3 sm:py-4 pr-2 sm:pr-4 bg-transparent border-none cursor-pointer text-left rounded-lg transition-colors tap-highlight-none"
+                  style={{ background: 'transparent' }}
                   aria-expanded={isExpanded}
                 >
                   {/* Timeline dot */}
-                  <div style={{
-                    position: 'relative',
-                    zIndex: 1,
-                    width: '40px',
-                    height: '40px',
-                    borderRadius: '50%',
-                    background: isExpanded || isHovered ? color.dot : 'var(--color-bg)',
-                    border: `2px solid ${color.dot}`,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexShrink: 0,
-                    transition: 'all 0.2s',
-                    fontSize: '1rem',
-                  }}>
+                  <div
+                    className="relative z-10 w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-200 border-2"
+                    style={{
+                      background: isExpanded || isHovered ? color.dot : 'var(--color-bg)',
+                      borderColor: color.dot,
+                    }}
+                  >
                     {isExpanded || isHovered ? (
-                      <span style={{ fontSize: '0.95rem' }}>{day.emoji}</span>
+                      <span className="text-base sm:text-xl leading-none">{day.emoji}</span>
                     ) : (
-                      <span style={{
-                        fontSize: '0.75rem',
-                        fontWeight: 700,
-                        color: color.dot,
-                      }}>
+                      <span
+                        className="text-[11px] sm:text-xs font-bold leading-none"
+                        style={{ color: color.dot }}
+                      >
                         {day.day}
                       </span>
                     )}
                   </div>
 
                   {/* Day info */}
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                      flexWrap: 'wrap',
-                    }}>
-                      <span style={{
-                        fontSize: '0.95rem',
-                        fontWeight: 700,
-                        color: 'var(--color-primary)',
-                      }}>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-sm sm:text-base font-bold text-primary leading-tight">
                         Day {day.day}
                       </span>
-                      <span style={{
-                        fontSize: '0.75rem',
-                        color: 'var(--color-muted)',
-                      }}>
+                      <span className="text-[11px] sm:text-xs text-muted">
                         {day.date}
                       </span>
-                      <span style={{
-                        fontSize: '0.7rem',
-                        fontWeight: 600,
-                        padding: '2px 8px',
-                        borderRadius: '999px',
-                        background: color.bg,
-                        border: `1px solid ${color.border}`,
-                        color: color.text,
-                      }}>
+                      <span
+                        className="text-[10px] sm:text-xs font-semibold px-1.5 sm:px-2 py-0.5 rounded-full border"
+                        style={{
+                          background: color.bg,
+                          borderColor: color.border,
+                          color: color.text,
+                        }}
+                      >
                         {day.city}
                       </span>
                     </div>
                     {/* Preview stops (when collapsed) */}
                     {!isExpanded && (
-                      <div style={{
-                        fontSize: '0.8rem',
-                        color: 'var(--color-muted)',
-                        marginTop: '4px',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                      }}>
+                      <div className="text-[11px] sm:text-xs text-muted mt-1 leading-snug">
                         {day.stops.map((s) => s.name).join(' → ')}
                       </div>
                     )}
@@ -202,20 +135,17 @@ export default function TravelTimeline({ title, days }: TravelTimelineProps) {
                   {/* Expand arrow */}
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+                    className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0 transition-transform duration-200"
                     style={{
                       color: 'var(--color-muted)',
-                      flexShrink: 0,
-                      transition: 'transform 0.2s',
                       transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
                     }}
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                   >
                     <polyline points="6 9 12 15 18 9" />
                   </svg>
@@ -223,66 +153,44 @@ export default function TravelTimeline({ title, days }: TravelTimelineProps) {
 
                 {/* Expanded stops */}
                 {isExpanded && (
-                  <div style={{
-                    marginLeft: '56px',
-                    marginBottom: '8px',
-                    padding: '12px 16px',
-                    background: color.bg,
-                    border: `1px solid ${color.border}`,
-                    borderRadius: '8px',
-                    animation: 'timelineSlideIn 0.2s ease-out',
-                  }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <div
+                    className="ml-10 sm:ml-14 mb-2 p-3 sm:p-4 rounded-lg sm:rounded-xl border transition-all"
+                    style={{
+                      background: color.bg,
+                      borderColor: color.border,
+                      animation: 'timelineSlideIn 0.2s ease-out',
+                    }}
+                  >
+                    <div className="flex flex-col gap-2 sm:gap-3">
                       {day.stops.map((stop, idx) => (
-                        <div key={idx} style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '10px',
-                        }}>
-                          {/* Stop connector */}
-                          <div style={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            gap: '2px',
-                          }}>
-                            <div style={{
-                              width: stop.highlight ? '10px' : '7px',
-                              height: stop.highlight ? '10px' : '7px',
-                              borderRadius: '50%',
+                        <div key={idx} className="flex items-center gap-2 sm:gap-3">
+                          {/* Stop dot */}
+                          <div
+                            className="rounded-full border-2 flex-shrink-0"
+                            style={{
+                              width: stop.highlight ? '10px' : '8px',
+                              height: stop.highlight ? '10px' : '8px',
                               background: stop.highlight ? color.dot : 'transparent',
-                              border: `2px solid ${color.dot}`,
-                              flexShrink: 0,
-                            }} />
-                          </div>
+                              borderColor: color.dot,
+                            }}
+                          />
 
                           {/* Stop name */}
-                          <span style={{
-                            fontSize: '0.85rem',
+                          <span className="text-xs sm:text-sm leading-snug" style={{
                             fontWeight: stop.highlight ? 600 : 400,
                             color: stop.highlight ? 'var(--color-primary)' : 'var(--color-secondary)',
                           }}>
                             {stop.name}
                             {stop.highlight && (
-                              <span style={{
-                                marginLeft: '6px',
-                                fontSize: '0.7rem',
-                                color: color.text,
-                              }}>
+                              <span className="ml-1.5 text-[10px] sm:text-xs" style={{ color: color.text }}>
                                 ★
                               </span>
                             )}
                           </span>
 
-                          {/* Connector line to next */}
+                          {/* Arrow to next */}
                           {idx < day.stops.length - 1 && (
-                            <span style={{
-                              fontSize: '0.7rem',
-                              color: 'var(--color-muted)',
-                              marginLeft: 'auto',
-                            }}>
-                              →
-                            </span>
+                            <span className="ml-auto text-[10px] sm:text-xs text-muted flex-shrink-0">→</span>
                           )}
                         </div>
                       ))}
@@ -297,14 +205,8 @@ export default function TravelTimeline({ title, days }: TravelTimelineProps) {
 
       <style>{`
         @keyframes timelineSlideIn {
-          from {
-            opacity: 0;
-            transform: translateY(-8px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
+          from { opacity: 0; transform: translateY(-6px); }
+          to { opacity: 1; transform: translateY(0); }
         }
       `}</style>
     </div>

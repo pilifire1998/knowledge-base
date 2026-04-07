@@ -201,14 +201,15 @@ export default function SearchModal() {
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-start justify-center pt-[8vh] sm:pt-[15vh] bg-black/50"
+      className="fixed inset-0 z-[100] flex items-end sm:items-start justify-center sm:pt-[12vh] bg-black/60 backdrop-blur-sm"
       onClick={closeModal}
     >
       <div
-        className="w-full max-w-xl bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg shadow-2xl overflow-hidden mx-4"
+        className="w-full sm:max-w-xl bg-[var(--color-surface)] border-t sm:border border-[var(--color-border)] sm:rounded-xl shadow-2xl overflow-hidden mx-0 sm:mx-4 animate-slideUp"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center gap-3 px-4 py-3 border-b border-[var(--color-border)]">
+        {/* Search input */}
+        <div className="flex items-center gap-3 px-4 py-3 sm:py-4 border-b border-[var(--color-border)]">
           <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-muted flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
@@ -218,21 +219,31 @@ export default function SearchModal() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="搜索文章..."
-            className="flex-1 bg-transparent text-primary placeholder:text-muted focus:outline-none text-base"
+            className="flex-1 bg-transparent text-primary placeholder:text-muted focus:outline-none text-base sm:text-lg py-1"
           />
-          <kbd className="px-2 py-1 text-xs text-muted bg-[var(--color-bg)] border border-[var(--color-border)] rounded flex-shrink-0">ESC</kbd>
+          <button
+            onClick={closeModal}
+            className="sm:hidden p-1.5 -mr-1.5 text-muted hover:text-primary transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+            aria-label="关闭"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+          <kbd className="hidden sm:inline px-2 py-1 text-xs text-muted bg-[var(--color-bg)] border border-[var(--color-border)] rounded flex-shrink-0">ESC</kbd>
         </div>
 
-        <div className="max-h-[60vh] sm:max-h-[50vh] overflow-y-auto">
+        {/* Results */}
+        <div className="max-h-[55vh] sm:max-h-[50vh] overflow-y-auto">
           {loading && (
-            <div className="px-4 py-8 text-center text-muted">搜索中...</div>
+            <div className="px-4 py-10 sm:py-8 text-center text-muted text-sm">搜索中...</div>
           )}
 
           {!loading && query && results.length === 0 && (
-            <div className="px-4 py-8 text-center text-muted">
-              <p>未找到相关内容</p>
+            <div className="px-4 py-10 sm:py-8 text-center text-muted">
+              <p className="text-sm sm:text-base">未找到相关内容</p>
               {!pagefindLoaded && (
-                <p className="text-sm mt-2">提示: 开发模式下仅搜索示例文章，完整搜索请运行 <code className="px-1.5 py-0.5 bg-[var(--color-bg)] rounded text-xs">pnpm build && pnpm preview</code></p>
+                <p className="text-xs mt-3 hidden sm:block">开发模式下仅搜索示例文章<br />完整搜索请运行 <code className="px-1.5 py-0.5 bg-[var(--color-bg)] rounded">pnpm build &amp;&amp; pnpm preview</code></p>
               )}
             </div>
           )}
@@ -240,7 +251,7 @@ export default function SearchModal() {
           {!loading && query && results.length > 0 && (
             <>
               {!pagefindLoaded && (
-                <div className="px-4 py-2 text-xs text-muted bg-[var(--color-bg)] border-b border-[var(--color-border)]">
+                <div className="px-4 py-2 text-[11px] sm:text-xs text-muted bg-[var(--color-bg)] border-b border-[var(--color-border)]">
                   开发模式 - 仅显示示例文章
                 </div>
               )}
@@ -249,27 +260,29 @@ export default function SearchModal() {
                   key={result.url}
                   href={result.url}
                   onClick={closeModal}
-                  className={`block px-4 py-3 border-b border-[var(--color-border)] last:border-0 transition-colors ${
+                  className={`block px-4 py-4 sm:py-3 border-b border-[var(--color-border)] last:border-0 transition-colors min-h-[60px] sm:min-h-0 flex items-center ${
                     index === selectedIndex
                       ? 'bg-[var(--color-bg)]'
                       : 'hover:bg-[var(--color-bg)]'
                   }`}
                 >
-                  <div className="font-semibold text-primary mb-1">{result.meta.title}</div>
-                  <div
-                    className="text-sm text-secondary line-clamp-2"
-                    dangerouslySetInnerHTML={{ __html: result.excerpt }}
-                  />
+                  <div>
+                    <div className="font-semibold text-primary text-sm sm:text-base mb-0.5">{result.meta.title}</div>
+                    <div
+                      className="text-xs sm:text-sm text-secondary line-clamp-1 sm:line-clamp-2"
+                      dangerouslySetInnerHTML={{ __html: result.excerpt }}
+                    />
+                  </div>
                 </a>
               ))}
             </>
           )}
 
           {!query && (
-            <div className="px-4 py-8 text-center text-muted">
-              <p>输入关键词开始搜索</p>
+            <div className="px-4 py-10 sm:py-8 text-center text-muted">
+              <p className="text-sm sm:text-base">输入关键词开始搜索</p>
               {!pagefindLoaded && (
-                <p className="text-sm mt-2">开发模式 - 完整搜索请运行 <code className="px-1.5 py-0.5 bg-[var(--color-bg)] rounded text-xs">pnpm build && pnpm preview</code></p>
+                <p className="text-xs mt-3 hidden sm:block">开发模式 - 完整搜索请运行 <code className="px-1.5 py-0.5 bg-[var(--color-bg)] rounded">pnpm build &amp;&amp; pnpm preview</code></p>
               )}
             </div>
           )}

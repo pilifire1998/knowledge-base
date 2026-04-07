@@ -1,0 +1,949 @@
+<!DOCTYPE html><html lang="zh-CN"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description" content="掌握原生模块开发、高级动画系统、自动化测试策略与 CI/CD 发布流程，成为 React Native 专家"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><title>React Native 精通：原生模块与生产发布 | DEV.JOURNAL</title><link rel="stylesheet" href="/_astro/about.CrDypRA3.css">
+<link rel="stylesheet" href="/_astro/_slug_.DqP7XW-b.css"><script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+		var script = document.createElement('script');
+		script.defer = true;
+		script.src = '/_vercel/insights/script.js';
+		var head = document.querySelector('head');
+		head.appendChild(script);
+	</script><style>.mindmap-node[data-astro-cid-emamgkm6]{position:relative}.mindmap-item[data-astro-cid-emamgkm6]{display:flex;align-items:center;gap:8px;padding:6px 12px;margin:2px 0;border-radius:4px;transition:background .15s}.mindmap-item[data-astro-cid-emamgkm6]:hover{background:var(--color-bg)}.mindmap-dot[data-astro-cid-emamgkm6]{width:6px;height:6px;background:var(--color-primary);border-radius:50%;flex-shrink:0}.mindmap-arrow[data-astro-cid-emamgkm6]{font-size:10px;color:var(--color-muted);flex-shrink:0;transition:transform .15s}.mindmap-text[data-astro-cid-emamgkm6]{color:var(--color-primary);font-size:.95rem}.mindmap-children[data-astro-cid-emamgkm6]{border-left:2px solid var(--color-border);margin-left:10px;padding-left:0}.mindmap-item[data-astro-cid-emamgkm6].has-children{font-weight:600}.mindmap-item[data-astro-cid-emamgkm6].has-children .mindmap-text[data-astro-cid-emamgkm6]{color:var(--color-primary)}
+</style></head> <body class="min-h-screen flex flex-col"> <header class="sticky top-0 z-50 bg-[var(--color-bg)] border-b border-[var(--color-border)]"> <nav class="container h-14 sm:h-16 flex items-center justify-between" aria-label="主导航"> <a href="/" class="text-lg sm:text-xl font-black tracking-tight text-primary hover:opacity-70 transition-opacity">
+DEV.JOURNAL
+</a> <!-- Desktop nav --> <div class="hidden sm:flex items-center gap-6"> <a href="/articles" class="text-sm font-semibold text-secondary hover:text-primary transition-colors"> 文章 </a><a href="/tags" class="text-sm font-semibold text-secondary hover:text-primary transition-colors"> 标签 </a><a href="/about" class="text-sm font-semibold text-secondary hover:text-primary transition-colors"> 关于 </a> <button id="search-btn" type="button" class="flex items-center gap-2 px-3 py-1.5 text-sm text-muted border border-[var(--color-border)] rounded hover:border-primary hover:text-primary transition-colors" aria-label="搜索"> <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path> </svg> <span class="hidden sm:inline">搜索...</span> <kbd class="hidden sm:inline text-xs px-1.5 py-0.5 bg-[var(--color-surface)] rounded">⌘K</kbd> </button> <button id="theme-toggle" type="button" class="p-2 text-secondary hover:text-primary transition-colors" aria-label="切换主题"> <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 dark-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path> </svg> <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 light-icon hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path> </svg> </button> </div> <!-- Mobile actions --> <div class="flex sm:hidden items-center gap-2"> <button id="search-btn-mobile" type="button" class="p-2 text-secondary hover:text-primary transition-colors" aria-label="搜索"> <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path> </svg> </button> <button id="theme-toggle-mobile" type="button" class="p-2 text-secondary hover:text-primary transition-colors" aria-label="切换主题"> <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 dark-icon-mobile" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path> </svg> <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 light-icon-mobile hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path> </svg> </button> <button id="mobile-menu-btn" type="button" class="p-2 text-secondary hover:text-primary transition-colors" aria-label="打开菜单" aria-expanded="false"> <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 menu-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path> </svg> <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 close-icon hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path> </svg> </button> </div> </nav> <!-- Mobile menu panel --> <div id="mobile-menu" class="hidden sm:hidden border-t border-[var(--color-border)] bg-[var(--color-bg)]"> <div class="container py-4 flex flex-col gap-3"> <a href="/articles" class="text-base font-semibold text-secondary hover:text-primary transition-colors py-2"> 文章 </a><a href="/tags" class="text-base font-semibold text-secondary hover:text-primary transition-colors py-2"> 标签 </a><a href="/about" class="text-base font-semibold text-secondary hover:text-primary transition-colors py-2"> 关于 </a> </div> </div> </header> <div id="search-modal-container" class="contents"> <style>astro-island,astro-slot,astro-static-slot{display:contents}</style><script>(()=>{var e=async t=>{await(await t())()};(self.Astro||(self.Astro={})).load=e;window.dispatchEvent(new Event("astro:load"));})();</script><script>(()=>{var A=Object.defineProperty;var g=(i,o,a)=>o in i?A(i,o,{enumerable:!0,configurable:!0,writable:!0,value:a}):i[o]=a;var d=(i,o,a)=>g(i,typeof o!="symbol"?o+"":o,a);{let i={0:t=>m(t),1:t=>a(t),2:t=>new RegExp(t),3:t=>new Date(t),4:t=>new Map(a(t)),5:t=>new Set(a(t)),6:t=>BigInt(t),7:t=>new URL(t),8:t=>new Uint8Array(t),9:t=>new Uint16Array(t),10:t=>new Uint32Array(t),11:t=>1/0*t},o=t=>{let[l,e]=t;return l in i?i[l](e):void 0},a=t=>t.map(o),m=t=>typeof t!="object"||t===null?t:Object.fromEntries(Object.entries(t).map(([l,e])=>[l,o(e)]));class y extends HTMLElement{constructor(){super(...arguments);d(this,"Component");d(this,"hydrator");d(this,"hydrate",async()=>{var b;if(!this.hydrator||!this.isConnected)return;let e=(b=this.parentElement)==null?void 0:b.closest("astro-island[ssr]");if(e){e.addEventListener("astro:hydrate",this.hydrate,{once:!0});return}let c=this.querySelectorAll("astro-slot"),n={},h=this.querySelectorAll("template[data-astro-template]");for(let r of h){let s=r.closest(this.tagName);s!=null&&s.isSameNode(this)&&(n[r.getAttribute("data-astro-template")||"default"]=r.innerHTML,r.remove())}for(let r of c){let s=r.closest(this.tagName);s!=null&&s.isSameNode(this)&&(n[r.getAttribute("name")||"default"]=r.innerHTML)}let p;try{p=this.hasAttribute("props")?m(JSON.parse(this.getAttribute("props"))):{}}catch(r){let s=this.getAttribute("component-url")||"<unknown>",v=this.getAttribute("component-export");throw v&&(s+=` (export ${v})`),console.error(`[hydrate] Error parsing props for component ${s}`,this.getAttribute("props"),r),r}let u;await this.hydrator(this)(this.Component,p,n,{client:this.getAttribute("client")}),this.removeAttribute("ssr"),this.dispatchEvent(new CustomEvent("astro:hydrate"))});d(this,"unmount",()=>{this.isConnected||this.dispatchEvent(new CustomEvent("astro:unmount"))})}disconnectedCallback(){document.removeEventListener("astro:after-swap",this.unmount),document.addEventListener("astro:after-swap",this.unmount,{once:!0})}connectedCallback(){if(!this.hasAttribute("await-children")||document.readyState==="interactive"||document.readyState==="complete")this.childrenConnectedCallback();else{let e=()=>{document.removeEventListener("DOMContentLoaded",e),c.disconnect(),this.childrenConnectedCallback()},c=new MutationObserver(()=>{var n;((n=this.lastChild)==null?void 0:n.nodeType)===Node.COMMENT_NODE&&this.lastChild.nodeValue==="astro:end"&&(this.lastChild.remove(),e())});c.observe(this,{childList:!0}),document.addEventListener("DOMContentLoaded",e)}}async childrenConnectedCallback(){let e=this.getAttribute("before-hydration-url");e&&await import(e),this.start()}async start(){let e=JSON.parse(this.getAttribute("opts")),c=this.getAttribute("client");if(Astro[c]===void 0){window.addEventListener(`astro:${c}`,()=>this.start(),{once:!0});return}try{await Astro[c](async()=>{let n=this.getAttribute("renderer-url"),[h,{default:p}]=await Promise.all([import(this.getAttribute("component-url")),n?import(n):()=>()=>{}]),u=this.getAttribute("component-export")||"default";if(!u.includes("."))this.Component=h[u];else{this.Component=h;for(let f of u.split("."))this.Component=this.Component[f]}return this.hydrator=p,this.hydrate},e,this)}catch(n){console.error(`[astro-island] Error hydrating ${this.getAttribute("component-url")}`,n)}}attributeChangedCallback(){this.hydrate()}}d(y,"observedAttributes",["props"]),customElements.get("astro-island")||customElements.define("astro-island",y)}})();</script><astro-island uid="Z8LruP" prefix="r7" component-url="/_astro/SearchModal.BUs0Iz28.js" component-export="default" renderer-url="/_astro/client.nc8uITnr.js" props="{}" ssr client="load" opts="{&quot;name&quot;:&quot;SearchModal&quot;,&quot;value&quot;:true}"></astro-island> </div> <script type="module">function d(){return localStorage.getItem("theme")||(window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light")}function n(e){document.documentElement.setAttribute("data-theme",e),localStorage.setItem("theme",e);const t=e==="dark";document.querySelector(".dark-icon")?.classList.toggle("hidden",t),document.querySelector(".light-icon")?.classList.toggle("hidden",!t),document.querySelector(".dark-icon-mobile")?.classList.toggle("hidden",t),document.querySelector(".light-icon-mobile")?.classList.toggle("hidden",!t)}n(d());document.getElementById("theme-toggle")?.addEventListener("click",()=>{const e=document.documentElement.getAttribute("data-theme");n(e==="dark"?"light":"dark")});document.getElementById("theme-toggle-mobile")?.addEventListener("click",()=>{const e=document.documentElement.getAttribute("data-theme");n(e==="dark"?"light":"dark")});const o=document.getElementById("mobile-menu-btn"),c=document.getElementById("mobile-menu"),i=document.querySelector(".menu-icon"),l=document.querySelector(".close-icon");o?.addEventListener("click",()=>{const e=!c?.classList.contains("hidden");c?.classList.toggle("hidden",e),i?.classList.toggle("hidden",!e),l?.classList.toggle("hidden",e),o.setAttribute("aria-expanded",String(!e))});</script> <main class="flex-1">  <astro-island uid="1gv8UM" prefix="r4" component-url="/_astro/ReadingProgress.DLjrwGBD.js" component-export="default" renderer-url="/_astro/client.nc8uITnr.js" props="{}" ssr client="load" opts="{&quot;name&quot;:&quot;ReadingProgress&quot;,&quot;value&quot;:true}" await-children><div class="fixed top-0 left-0 h-1 bg-[var(--color-primary)] z-[100] transition-[width] duration-100" style="width:0%" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div><!--astro:end--></astro-island> <article class="min-h-screen"> <!-- Article Header - Full Width --> <header class="border-b border-[var(--color-border)] bg-[var(--color-surface)]"> <div class="container py-6 sm:py-10 lg:py-14"> <div class="max-w-4xl"> <!-- Tags --> <div class="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-5"> <a href="/tags/react-native" class="text-[10px] sm:text-caption uppercase tracking-wider text-secondary px-2 py-0.5 border border-[var(--color-border)] rounded-sm hover:border-primary hover:text-primary transition-colors"> react-native </a><a href="/tags/精通" class="text-[10px] sm:text-caption uppercase tracking-wider text-secondary px-2 py-0.5 border border-[var(--color-border)] rounded-sm hover:border-primary hover:text-primary transition-colors"> 精通 </a><a href="/tags/原生模块" class="text-[10px] sm:text-caption uppercase tracking-wider text-secondary px-2 py-0.5 border border-[var(--color-border)] rounded-sm hover:border-primary hover:text-primary transition-colors"> 原生模块 </a><a href="/tags/动画" class="text-[10px] sm:text-caption uppercase tracking-wider text-secondary px-2 py-0.5 border border-[var(--color-border)] rounded-sm hover:border-primary hover:text-primary transition-colors"> 动画 </a><a href="/tags/测试" class="text-[10px] sm:text-caption uppercase tracking-wider text-secondary px-2 py-0.5 border border-[var(--color-border)] rounded-sm hover:border-primary hover:text-primary transition-colors"> 测试 </a><a href="/tags/CICD" class="text-[10px] sm:text-caption uppercase tracking-wider text-secondary px-2 py-0.5 border border-[var(--color-border)] rounded-sm hover:border-primary hover:text-primary transition-colors"> CICD </a> </div> <!-- Title --> <h1 class="text-display text-primary mb-3 sm:mb-5 leading-tight">React Native 精通：原生模块与生产发布</h1> <!-- Description --> <p class="text-sm sm:text-lg text-secondary mb-4 sm:mb-5 max-w-2xl leading-relaxed">掌握原生模块开发、高级动画系统、自动化测试策略与 CI/CD 发布流程，成为 React Native 专家</p> <!-- Meta --> <div class="flex items-center gap-3 sm:gap-5 text-[11px] sm:text-caption text-muted"> <time datetime="2026-04-07T00:00:00.000Z">2026/4/7</time> <span class="hidden sm:inline">·</span> <span>5 分钟阅读</span> </div> </div> </div> </header> <!-- Mobile TOC (collapsible) --> <div class="lg:hidden border-b border-[var(--color-border)]"> <div class="container"> <button id="mobile-toc-toggle" class="w-full flex items-center justify-between py-3.5 sm:py-4 text-sm font-semibold text-secondary active:bg-[var(--color-surface)] rounded-none -mx-4 px-4 sm:-mx-6 sm:px-6" aria-expanded="false"> <span>目录导航</span> <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mobile-toc-chevron transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path> </svg> </button> <div id="mobile-toc-content" class="hidden pb-4"> <astro-island uid="1Wamf8" prefix="r5" component-url="/_astro/TableOfContents.BkQNCNIv.js" component-export="default" renderer-url="/_astro/client.nc8uITnr.js" props="{&quot;showProgress&quot;:[0,false]}" ssr client="load" opts="{&quot;name&quot;:&quot;TableOfContents&quot;,&quot;value&quot;:true}"></astro-island> </div> </div> </div> <!-- Article Content - With TOC Sidebar --> <div class="container py-6 sm:py-10 lg:py-14"> <div class="lg:grid lg:grid-cols-[1fr_280px] lg:gap-16 lg:max-w-6xl lg:mx-auto"> <!-- Main Content --> <div class="prose min-w-0 max-w-none px-0 sm:px-0">  <p>在前两篇掌握基础和进阶内容后，本篇将深入原生模块开发、高级动画、测试策略和应用发布等精通级主题。</p>
+<div class="mindmap-container my-8" data-astro-cid-emamgkm6> <div class="text-caption uppercase tracking-wider text-muted mb-4 font-semibold" data-astro-cid-emamgkm6>精通级知识体系</div> <div class="mindmap bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg p-6" data-astro-cid-emamgkm6> 
+    <div class="mindmap-node" style="margin-left: 0px">
+      <div class="mindmap-item has-children">
+        <span class="mindmap-arrow">▶</span>
+        <span class="mindmap-text">React Native 精通</span>
+      </div>
+  <div class="mindmap-children">
+    <div class="mindmap-node" style="margin-left: 24px">
+      <div class="mindmap-item has-children">
+        <span class="mindmap-arrow">▶</span>
+        <span class="mindmap-text">原生模块</span>
+      </div>
+  <div class="mindmap-children">
+    <div class="mindmap-node" style="margin-left: 48px">
+      <div class="mindmap-item ">
+        <span class="mindmap-dot"></span>
+        <span class="mindmap-text">TurboModules (新架构)</span>
+      </div>
+  </div>
+    <div class="mindmap-node" style="margin-left: 48px">
+      <div class="mindmap-item ">
+        <span class="mindmap-dot"></span>
+        <span class="mindmap-text">Native Modules (旧架构)</span>
+      </div>
+  </div>
+    <div class="mindmap-node" style="margin-left: 48px">
+      <div class="mindmap-item ">
+        <span class="mindmap-dot"></span>
+        <span class="mindmap-text">事件发送</span>
+      </div>
+  </div></div></div>
+    <div class="mindmap-node" style="margin-left: 24px">
+      <div class="mindmap-item has-children">
+        <span class="mindmap-arrow">▶</span>
+        <span class="mindmap-text">动画系统</span>
+      </div>
+  <div class="mindmap-children">
+    <div class="mindmap-node" style="margin-left: 48px">
+      <div class="mindmap-item ">
+        <span class="mindmap-dot"></span>
+        <span class="mindmap-text">Reanimated 3</span>
+      </div>
+  </div>
+    <div class="mindmap-node" style="margin-left: 48px">
+      <div class="mindmap-item ">
+        <span class="mindmap-dot"></span>
+        <span class="mindmap-text">手势交互</span>
+      </div>
+  </div>
+    <div class="mindmap-node" style="margin-left: 48px">
+      <div class="mindmap-item ">
+        <span class="mindmap-dot"></span>
+        <span class="mindmap-text">布局动画</span>
+      </div>
+  </div></div></div>
+    <div class="mindmap-node" style="margin-left: 24px">
+      <div class="mindmap-item has-children">
+        <span class="mindmap-arrow">▶</span>
+        <span class="mindmap-text">测试策略</span>
+      </div>
+  <div class="mindmap-children">
+    <div class="mindmap-node" style="margin-left: 48px">
+      <div class="mindmap-item ">
+        <span class="mindmap-dot"></span>
+        <span class="mindmap-text">Jest 单元测试</span>
+      </div>
+  </div>
+    <div class="mindmap-node" style="margin-left: 48px">
+      <div class="mindmap-item ">
+        <span class="mindmap-dot"></span>
+        <span class="mindmap-text">Detox E2E</span>
+      </div>
+  </div>
+    <div class="mindmap-node" style="margin-left: 48px">
+      <div class="mindmap-item ">
+        <span class="mindmap-dot"></span>
+        <span class="mindmap-text">快照测试</span>
+      </div>
+  </div></div></div>
+    <div class="mindmap-node" style="margin-left: 24px">
+      <div class="mindmap-item has-children">
+        <span class="mindmap-arrow">▶</span>
+        <span class="mindmap-text">发布流程</span>
+      </div>
+  <div class="mindmap-children">
+    <div class="mindmap-node" style="margin-left: 48px">
+      <div class="mindmap-item ">
+        <span class="mindmap-dot"></span>
+        <span class="mindmap-text">App Store</span>
+      </div>
+  </div>
+    <div class="mindmap-node" style="margin-left: 48px">
+      <div class="mindmap-item ">
+        <span class="mindmap-dot"></span>
+        <span class="mindmap-text">Google Play</span>
+      </div>
+  </div>
+    <div class="mindmap-node" style="margin-left: 48px">
+      <div class="mindmap-item ">
+        <span class="mindmap-dot"></span>
+        <span class="mindmap-text">CI/CD 自动化</span>
+      </div>
+  </div></div></div></div></div> </div> </div> 
+<h2 id="原生模块开发">原生模块开发</h2>
+<h3 id="新架构turbomodules-推荐">新架构：TurboModules (推荐)</h3>
+<p>React Native 0.71+ 支持新架构，使用 TurboModules 提供更好的类型安全和性能。</p>
+<p><strong>1. 定义规范 (NativeSample.ts)</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#6A737D">// src/NativeModules/NativeSample.ts</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#F97583"> type</span><span style="color:#E1E4E8"> { TurboModule } </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> &#39;react-native&#39;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> { TurboModuleRegistry } </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> &#39;react-native&#39;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">export</span><span style="color:#F97583"> interface</span><span style="color:#B392F0"> Spec</span><span style="color:#F97583"> extends</span><span style="color:#B392F0"> TurboModule</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">  // 获取设备信息</span></span>
+<span class="line"><span style="color:#B392F0">  getDeviceName</span><span style="color:#E1E4E8">()</span><span style="color:#F97583">:</span><span style="color:#B392F0"> Promise</span><span style="color:#E1E4E8">&lt;</span><span style="color:#79B8FF">string</span><span style="color:#E1E4E8">&gt;;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">  // 计算操作</span></span>
+<span class="line"><span style="color:#B392F0">  add</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">a</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> number</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">b</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> number</span><span style="color:#E1E4E8">)</span><span style="color:#F97583">:</span><span style="color:#B392F0"> Promise</span><span style="color:#E1E4E8">&lt;</span><span style="color:#79B8FF">number</span><span style="color:#E1E4E8">&gt;;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">  // 存储操作</span></span>
+<span class="line"><span style="color:#B392F0">  setItem</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">key</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">value</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8">)</span><span style="color:#F97583">:</span><span style="color:#B392F0"> Promise</span><span style="color:#E1E4E8">&lt;</span><span style="color:#79B8FF">void</span><span style="color:#E1E4E8">&gt;;</span></span>
+<span class="line"><span style="color:#B392F0">  getItem</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">key</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8">)</span><span style="color:#F97583">:</span><span style="color:#B392F0"> Promise</span><span style="color:#E1E4E8">&lt;</span><span style="color:#79B8FF">string</span><span style="color:#F97583"> |</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">&gt;;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">  // 事件支持</span></span>
+<span class="line"><span style="color:#B392F0">  addListener</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">eventName</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8">)</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> void</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#B392F0">  removeListeners</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">count</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> number</span><span style="color:#E1E4E8">)</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> void</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">export</span><span style="color:#F97583"> default</span><span style="color:#E1E4E8"> TurboModuleRegistry.</span><span style="color:#B392F0">getEnforcing</span><span style="color:#E1E4E8">&lt;</span><span style="color:#B392F0">Spec</span><span style="color:#E1E4E8">&gt;(</span><span style="color:#9ECBFF">&#39;NativeSample&#39;</span><span style="color:#E1E4E8">);</span></span></code></pre>
+<p><strong>2. iOS 实现 (Objective-C++)</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="objc"><code><span class="line"><span style="color:#6A737D">// ios/NativeSample.mm</span></span>
+<span class="line"><span style="color:#F97583">#import</span><span style="color:#9ECBFF"> &lt;React/RCTBridgeModule.h&gt;</span></span>
+<span class="line"><span style="color:#F97583">#import</span><span style="color:#9ECBFF"> &lt;React/RCTEventEmitter.h&gt;</span></span>
+<span class="line"><span style="color:#F97583">#import</span><span style="color:#9ECBFF"> &lt;ReactCommon/RCTTurboModule.h&gt;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">@interface</span><span style="color:#B392F0"> NativeSample</span><span style="color:#E1E4E8"> : </span><span style="color:#B392F0">RCTEventEmitter</span></span>
+<span class="line"><span style="color:#F97583">@end</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">@implementation</span><span style="color:#B392F0"> NativeSample</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">RCT_EXPORT_MODULE</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">- (</span><span style="color:#79B8FF">dispatch_queue_t</span><span style="color:#E1E4E8">)</span><span style="color:#B392F0">methodQueue</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">  return</span><span style="color:#B392F0"> dispatch_get_main_queue</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">- (</span><span style="color:#79B8FF">NSArray</span><span style="color:#E1E4E8">&lt;NSString *&gt; </span><span style="color:#F97583">*</span><span style="color:#E1E4E8">)</span><span style="color:#B392F0">supportedEvents</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">  return</span><span style="color:#E1E4E8"> @[</span><span style="color:#9ECBFF">@&quot;onCustomEvent&quot;</span><span style="color:#E1E4E8">];</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// 获取设备名称</span></span>
+<span class="line"><span style="color:#B392F0">RCT_REMAP_METHOD</span><span style="color:#E1E4E8">(getDeviceName,</span></span>
+<span class="line"><span style="color:#E1E4E8">                 getDeviceNameWithResolver:(RCTPromiseResolveBlock)resolve</span></span>
+<span class="line"><span style="color:#E1E4E8">                 rejecter:(RCTPromiseRejectBlock)</span><span style="color:#FFAB70">reject</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#79B8FF">  NSString</span><span style="color:#F97583"> *</span><span style="color:#E1E4E8">deviceName </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> [[UIDevice </span><span style="color:#79B8FF">currentDevice</span><span style="color:#E1E4E8">] </span><span style="color:#79B8FF">name</span><span style="color:#E1E4E8">];</span></span>
+<span class="line"><span style="color:#B392F0">  resolve</span><span style="color:#E1E4E8">(deviceName);</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// 加法计算</span></span>
+<span class="line"><span style="color:#B392F0">RCT_REMAP_METHOD</span><span style="color:#E1E4E8">(add,</span></span>
+<span class="line"><span style="color:#E1E4E8">                 addWithA:(</span><span style="color:#F97583">double</span><span style="color:#E1E4E8">)a</span></span>
+<span class="line"><span style="color:#E1E4E8">                 b:(</span><span style="color:#F97583">double</span><span style="color:#E1E4E8">)b</span></span>
+<span class="line"><span style="color:#E1E4E8">                 resolver:(RCTPromiseResolveBlock)resolve</span></span>
+<span class="line"><span style="color:#E1E4E8">                 rejecter:(RCTPromiseRejectBlock)</span><span style="color:#FFAB70">reject</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#B392F0">  resolve</span><span style="color:#E1E4E8">(@(a </span><span style="color:#F97583">+</span><span style="color:#E1E4E8"> b));</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// 存储操作</span></span>
+<span class="line"><span style="color:#B392F0">RCT_REMAP_METHOD</span><span style="color:#E1E4E8">(setItem,</span></span>
+<span class="line"><span style="color:#E1E4E8">                 setItemWithKey:(</span><span style="color:#79B8FF">NSString</span><span style="color:#F97583"> *</span><span style="color:#E1E4E8">)key</span></span>
+<span class="line"><span style="color:#E1E4E8">                 value:(</span><span style="color:#79B8FF">NSString</span><span style="color:#F97583"> *</span><span style="color:#E1E4E8">)value</span></span>
+<span class="line"><span style="color:#E1E4E8">                 resolver:(RCTPromiseResolveBlock)resolve</span></span>
+<span class="line"><span style="color:#E1E4E8">                 rejecter:(RCTPromiseRejectBlock)</span><span style="color:#FFAB70">reject</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#79B8FF">  NSUserDefaults</span><span style="color:#F97583"> *</span><span style="color:#E1E4E8">defaults </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> [</span><span style="color:#79B8FF">NSUserDefaults</span><span style="color:#79B8FF"> standardUserDefaults</span><span style="color:#E1E4E8">];</span></span>
+<span class="line"><span style="color:#E1E4E8">  [defaults </span><span style="color:#79B8FF">setObject:</span><span style="color:#E1E4E8">value </span><span style="color:#79B8FF">forKey:</span><span style="color:#E1E4E8">key];</span></span>
+<span class="line"><span style="color:#E1E4E8">  [defaults </span><span style="color:#79B8FF">synchronize</span><span style="color:#E1E4E8">];</span></span>
+<span class="line"><span style="color:#B392F0">  resolve</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">nil</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">RCT_REMAP_METHOD</span><span style="color:#E1E4E8">(getItem,</span></span>
+<span class="line"><span style="color:#E1E4E8">                 getItemWithKey:(</span><span style="color:#79B8FF">NSString</span><span style="color:#F97583"> *</span><span style="color:#E1E4E8">)key</span></span>
+<span class="line"><span style="color:#E1E4E8">                 resolver:(RCTPromiseResolveBlock)resolve</span></span>
+<span class="line"><span style="color:#E1E4E8">                 rejecter:(RCTPromiseRejectBlock)</span><span style="color:#FFAB70">reject</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#79B8FF">  NSUserDefaults</span><span style="color:#F97583"> *</span><span style="color:#E1E4E8">defaults </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> [</span><span style="color:#79B8FF">NSUserDefaults</span><span style="color:#79B8FF"> standardUserDefaults</span><span style="color:#E1E4E8">];</span></span>
+<span class="line"><span style="color:#79B8FF">  NSString</span><span style="color:#F97583"> *</span><span style="color:#E1E4E8">value </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> [defaults </span><span style="color:#79B8FF">stringForKey:</span><span style="color:#E1E4E8">key];</span></span>
+<span class="line"><span style="color:#B392F0">  resolve</span><span style="color:#E1E4E8">(value </span><span style="color:#F97583">?:</span><span style="color:#E1E4E8"> [</span><span style="color:#79B8FF">NSNull</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">]);</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// 发送事件</span></span>
+<span class="line"><span style="color:#E1E4E8">- (</span><span style="color:#F97583">void</span><span style="color:#E1E4E8">)</span><span style="color:#B392F0">sendCustomEvent:</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">NSString</span><span style="color:#F97583"> *</span><span style="color:#E1E4E8">)message {</span></span>
+<span class="line"><span style="color:#E1E4E8">  [</span><span style="color:#79B8FF">self</span><span style="color:#79B8FF"> sendEventWithName:</span><span style="color:#9ECBFF">@&quot;onCustomEvent&quot;</span><span style="color:#79B8FF"> body:</span><span style="color:#E1E4E8">@{</span><span style="color:#9ECBFF">@&quot;message&quot;</span><span style="color:#E1E4E8">: message}];</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">@end</span></span></code></pre>
+<p><strong>3. Android 实现 (Kotlin)</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="kotlin"><code><span class="line"><span style="color:#6A737D">// android/app/src/main/java/com/myapp/NativeSampleModule.kt</span></span>
+<span class="line"><span style="color:#F97583">package</span><span style="color:#B392F0"> com.myapp</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#B392F0"> android.content.Context</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#B392F0"> com.facebook.react.bridge.</span><span style="color:#79B8FF">*</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#B392F0"> com.facebook.react.modules.core.DeviceEventManagerModule</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">class</span><span style="color:#B392F0"> NativeSampleModule</span><span style="color:#E1E4E8">(reactContext: </span><span style="color:#B392F0">ReactApplicationContext</span><span style="color:#E1E4E8">) :</span></span>
+<span class="line"><span style="color:#B392F0">    ReactContextBaseJavaModule</span><span style="color:#E1E4E8">(reactContext) {</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    override</span><span style="color:#F97583"> fun</span><span style="color:#B392F0"> getName</span><span style="color:#E1E4E8">(): </span><span style="color:#B392F0">String</span><span style="color:#F97583"> =</span><span style="color:#9ECBFF"> &quot;NativeSample&quot;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    // 获取设备名称</span></span>
+<span class="line"><span style="color:#B392F0">    @ReactMethod</span></span>
+<span class="line"><span style="color:#F97583">    fun</span><span style="color:#B392F0"> getDeviceName</span><span style="color:#E1E4E8">(promise: </span><span style="color:#B392F0">Promise</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">        val</span><span style="color:#E1E4E8"> deviceName </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> android.os.Build.MODEL</span></span>
+<span class="line"><span style="color:#E1E4E8">        promise.</span><span style="color:#B392F0">resolve</span><span style="color:#E1E4E8">(deviceName)</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    // 加法计算</span></span>
+<span class="line"><span style="color:#B392F0">    @ReactMethod</span></span>
+<span class="line"><span style="color:#F97583">    fun</span><span style="color:#B392F0"> add</span><span style="color:#E1E4E8">(a: </span><span style="color:#B392F0">Double</span><span style="color:#E1E4E8">, b: </span><span style="color:#B392F0">Double</span><span style="color:#E1E4E8">, promise: </span><span style="color:#B392F0">Promise</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        promise.</span><span style="color:#B392F0">resolve</span><span style="color:#E1E4E8">(a </span><span style="color:#F97583">+</span><span style="color:#E1E4E8"> b)</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    // 存储操作</span></span>
+<span class="line"><span style="color:#B392F0">    @ReactMethod</span></span>
+<span class="line"><span style="color:#F97583">    fun</span><span style="color:#B392F0"> setItem</span><span style="color:#E1E4E8">(key: </span><span style="color:#B392F0">String</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">value</span><span style="color:#E1E4E8">: </span><span style="color:#B392F0">String</span><span style="color:#E1E4E8">, promise: </span><span style="color:#B392F0">Promise</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">        val</span><span style="color:#E1E4E8"> prefs </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> reactApplicationContext.</span><span style="color:#B392F0">getSharedPreferences</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;NativeSample&quot;</span><span style="color:#E1E4E8">, Context.MODE_PRIVATE)</span></span>
+<span class="line"><span style="color:#E1E4E8">        prefs.</span><span style="color:#B392F0">edit</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">putString</span><span style="color:#E1E4E8">(key, </span><span style="color:#F97583">value</span><span style="color:#E1E4E8">).</span><span style="color:#B392F0">apply</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">        promise.</span><span style="color:#B392F0">resolve</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">null</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">    @ReactMethod</span></span>
+<span class="line"><span style="color:#F97583">    fun</span><span style="color:#B392F0"> getItem</span><span style="color:#E1E4E8">(key: </span><span style="color:#B392F0">String</span><span style="color:#E1E4E8">, promise: </span><span style="color:#B392F0">Promise</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">        val</span><span style="color:#E1E4E8"> prefs </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> reactApplicationContext.</span><span style="color:#B392F0">getSharedPreferences</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;NativeSample&quot;</span><span style="color:#E1E4E8">, Context.MODE_PRIVATE)</span></span>
+<span class="line"><span style="color:#F97583">        val</span><span style="color:#F97583"> value</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> prefs.</span><span style="color:#B392F0">getString</span><span style="color:#E1E4E8">(key, </span><span style="color:#79B8FF">null</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">        promise.</span><span style="color:#B392F0">resolve</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">value</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    // 发送事件</span></span>
+<span class="line"><span style="color:#F97583">    fun</span><span style="color:#B392F0"> sendCustomEvent</span><span style="color:#E1E4E8">(message: </span><span style="color:#B392F0">String</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        reactApplicationContext</span></span>
+<span class="line"><span style="color:#E1E4E8">            .</span><span style="color:#B392F0">getJSModule</span><span style="color:#E1E4E8">(DeviceEventManagerModule.RCTDeviceEventEmitter::</span><span style="color:#B392F0">class</span><span style="color:#E1E4E8">.java)</span></span>
+<span class="line"><span style="color:#E1E4E8">            .</span><span style="color:#B392F0">emit</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;onCustomEvent&quot;</span><span style="color:#E1E4E8">, Arguments.</span><span style="color:#B392F0">createMap</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">apply</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#B392F0">                putString</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;message&quot;</span><span style="color:#E1E4E8">, message)</span></span>
+<span class="line"><span style="color:#E1E4E8">            })</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    // 事件监听器注册</span></span>
+<span class="line"><span style="color:#B392F0">    @ReactMethod</span></span>
+<span class="line"><span style="color:#F97583">    fun</span><span style="color:#B392F0"> addListener</span><span style="color:#E1E4E8">(eventName: </span><span style="color:#B392F0">String</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">        // 占位符，用于注册事件监听</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">    @ReactMethod</span></span>
+<span class="line"><span style="color:#F97583">    fun</span><span style="color:#B392F0"> removeListeners</span><span style="color:#E1E4E8">(count: </span><span style="color:#B392F0">Int</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">        // 占位符，用于移除事件监听</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="kotlin"><code><span class="line"><span style="color:#6A737D">// 注册模块</span></span>
+<span class="line"><span style="color:#6A737D">// android/app/src/main/java/com/myapp/MainApplication.kt</span></span>
+<span class="line"><span style="color:#F97583">override</span><span style="color:#F97583"> fun</span><span style="color:#B392F0"> getPackages</span><span style="color:#E1E4E8">(): </span><span style="color:#B392F0">List</span><span style="color:#E1E4E8">&lt;</span><span style="color:#B392F0">ReactPackage</span><span style="color:#E1E4E8">&gt; </span><span style="color:#F97583">=</span></span>
+<span class="line"><span style="color:#B392F0">    PackageList</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">).packages.</span><span style="color:#B392F0">apply</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#B392F0">        add</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">NativeSamplePackage</span><span style="color:#E1E4E8">())</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span></code></pre>
+<p><strong>4. JavaScript 使用</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="tsx"><code><span class="line"><span style="color:#6A737D">// hooks/useNativeSample.ts</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> { NativeEventEmitter, NativeModules } </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> &#39;react-native&#39;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> { useEffect, useState } </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> &#39;react&#39;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#E1E4E8"> { </span><span style="color:#79B8FF">NativeSample</span><span style="color:#E1E4E8"> } </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> NativeModules;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">export</span><span style="color:#F97583"> const</span><span style="color:#B392F0"> useDeviceName</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> () </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">  const</span><span style="color:#E1E4E8"> [</span><span style="color:#79B8FF">deviceName</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">setDeviceName</span><span style="color:#E1E4E8">] </span><span style="color:#F97583">=</span><span style="color:#B392F0"> useState</span><span style="color:#E1E4E8">&lt;</span><span style="color:#79B8FF">string</span><span style="color:#E1E4E8">&gt;(</span><span style="color:#9ECBFF">&#39;&#39;</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">  useEffect</span><span style="color:#E1E4E8">(() </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    NativeSample.</span><span style="color:#B392F0">getDeviceName</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">      .</span><span style="color:#B392F0">then</span><span style="color:#E1E4E8">(setDeviceName)</span></span>
+<span class="line"><span style="color:#E1E4E8">      .</span><span style="color:#B392F0">catch</span><span style="color:#E1E4E8">(console.error);</span></span>
+<span class="line"><span style="color:#E1E4E8">  }, []);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  return</span><span style="color:#E1E4E8"> deviceName;</span></span>
+<span class="line"><span style="color:#E1E4E8">};</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">export</span><span style="color:#F97583"> const</span><span style="color:#B392F0"> useNativeEvents</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> () </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">  const</span><span style="color:#E1E4E8"> [</span><span style="color:#79B8FF">events</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">setEvents</span><span style="color:#E1E4E8">] </span><span style="color:#F97583">=</span><span style="color:#B392F0"> useState</span><span style="color:#E1E4E8">&lt;</span><span style="color:#79B8FF">string</span><span style="color:#E1E4E8">[]&gt;([]);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">  useEffect</span><span style="color:#E1E4E8">(() </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> eventEmitter</span><span style="color:#F97583"> =</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> NativeEventEmitter</span><span style="color:#E1E4E8">(NativeSample);</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> subscription</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> eventEmitter.</span><span style="color:#B392F0">addListener</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&#39;onCustomEvent&#39;</span><span style="color:#E1E4E8">, (</span><span style="color:#FFAB70">event</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#B392F0">      setEvents</span><span style="color:#E1E4E8">((</span><span style="color:#FFAB70">prev</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> [</span><span style="color:#F97583">...</span><span style="color:#E1E4E8">prev, event.message]);</span></span>
+<span class="line"><span style="color:#E1E4E8">    });</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> () </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> subscription.</span><span style="color:#B392F0">remove</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">  }, []);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  return</span><span style="color:#E1E4E8"> events;</span></span>
+<span class="line"><span style="color:#E1E4E8">};</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// 使用示例</span></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#B392F0"> MyComponent</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> () </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">  const</span><span style="color:#79B8FF"> deviceName</span><span style="color:#F97583"> =</span><span style="color:#B392F0"> useDeviceName</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">  const</span><span style="color:#79B8FF"> events</span><span style="color:#F97583"> =</span><span style="color:#B392F0"> useNativeEvents</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  const</span><span style="color:#B392F0"> handleAdd</span><span style="color:#F97583"> =</span><span style="color:#F97583"> async</span><span style="color:#E1E4E8"> () </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> result</span><span style="color:#F97583"> =</span><span style="color:#F97583"> await</span><span style="color:#E1E4E8"> NativeSample.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">10</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">20</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">    console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&#39;Result:&#39;</span><span style="color:#E1E4E8">, result); </span><span style="color:#6A737D">// 30</span></span>
+<span class="line"><span style="color:#E1E4E8">  };</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  return</span><span style="color:#E1E4E8"> (</span></span>
+<span class="line"><span style="color:#E1E4E8">    &lt;</span><span style="color:#79B8FF">View</span><span style="color:#E1E4E8">&gt;</span></span>
+<span class="line"><span style="color:#E1E4E8">      &lt;</span><span style="color:#79B8FF">Text</span><span style="color:#E1E4E8">&gt;设备: {deviceName}&lt;/</span><span style="color:#79B8FF">Text</span><span style="color:#E1E4E8">&gt;</span></span>
+<span class="line"><span style="color:#E1E4E8">      &lt;</span><span style="color:#79B8FF">Button</span><span style="color:#B392F0"> title</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">&quot;计算 10 + 20&quot;</span><span style="color:#B392F0"> onPress</span><span style="color:#F97583">=</span><span style="color:#E1E4E8">{handleAdd} /&gt;</span></span>
+<span class="line"><span style="color:#E1E4E8">    &lt;/</span><span style="color:#79B8FF">View</span><span style="color:#E1E4E8">&gt;</span></span>
+<span class="line"><span style="color:#E1E4E8">  );</span></span>
+<span class="line"><span style="color:#E1E4E8">};</span></span></code></pre>
+<h3 id="旧架构native-modules">旧架构：Native Modules</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="tsx"><code><span class="line"><span style="color:#6A737D">// iOS</span></span>
+<span class="line"><span style="color:#B392F0">RCT_EXPORT_MODULE</span><span style="color:#E1E4E8">(ModuleName);</span></span>
+<span class="line"><span style="color:#B392F0">RCT_EXPORT_METHOD</span><span style="color:#E1E4E8">(methodName:(NSString </span><span style="color:#F97583">*</span><span style="color:#E1E4E8">)param resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// Android</span></span>
+<span class="line"><span style="color:#E1E4E8">@ReactMethod</span></span>
+<span class="line"><span style="color:#E1E4E8">fun </span><span style="color:#B392F0">methodName</span><span style="color:#E1E4E8">(param: String, promise: </span><span style="color:#79B8FF">Promise</span><span style="color:#E1E4E8">)</span></span></code></pre>
+<h2 id="高级动画reanimated-3">高级动画：Reanimated 3</h2>
+<p>Reanimated 3 提供了在 UI 线程运行的高性能动画系统。</p>
+<h3 id="安装配置">安装配置</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">npm</span><span style="color:#9ECBFF"> install</span><span style="color:#9ECBFF"> react-native-reanimated</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D"># babel.config.js</span></span>
+<span class="line"><span style="color:#B392F0">module.exports</span><span style="color:#9ECBFF"> =</span><span style="color:#9ECBFF"> {</span></span>
+<span class="line"><span style="color:#B392F0">  presets:</span><span style="color:#E1E4E8"> [</span><span style="color:#9ECBFF">&#39;babel-preset-expo&#39;</span><span style="color:#E1E4E8">],</span></span>
+<span class="line"><span style="color:#B392F0">  plugins:</span><span style="color:#E1E4E8"> [</span><span style="color:#9ECBFF">&#39;react-native-reanimated/plugin&#39;</span><span style="color:#E1E4E8">],</span></span>
+<span class="line"><span style="color:#E1E4E8">};</span></span></code></pre>
+<h3 id="基础动画">基础动画</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="tsx"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> Animated, {</span></span>
+<span class="line"><span style="color:#E1E4E8">  useSharedValue,</span></span>
+<span class="line"><span style="color:#E1E4E8">  useAnimatedStyle,</span></span>
+<span class="line"><span style="color:#E1E4E8">  withTiming,</span></span>
+<span class="line"><span style="color:#E1E4E8">  withSpring,</span></span>
+<span class="line"><span style="color:#E1E4E8">  withRepeat,</span></span>
+<span class="line"><span style="color:#E1E4E8">  Easing,</span></span>
+<span class="line"><span style="color:#E1E4E8">} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> &#39;react-native-reanimated&#39;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#B392F0"> BasicAnimation</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> () </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">  const</span><span style="color:#79B8FF"> offset</span><span style="color:#F97583"> =</span><span style="color:#B392F0"> useSharedValue</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  const</span><span style="color:#79B8FF"> animatedStyle</span><span style="color:#F97583"> =</span><span style="color:#B392F0"> useAnimatedStyle</span><span style="color:#E1E4E8">(() </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> ({</span></span>
+<span class="line"><span style="color:#E1E4E8">    transform: [{ translateX: offset.value }],</span></span>
+<span class="line"><span style="color:#E1E4E8">  }));</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  const</span><span style="color:#B392F0"> move</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> () </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">    // 线性动画</span></span>
+<span class="line"><span style="color:#E1E4E8">    offset.value </span><span style="color:#F97583">=</span><span style="color:#B392F0"> withTiming</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">100</span><span style="color:#E1E4E8">, { duration: </span><span style="color:#79B8FF">500</span><span style="color:#E1E4E8"> });</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    // 弹簧动画</span></span>
+<span class="line"><span style="color:#E1E4E8">    offset.value </span><span style="color:#F97583">=</span><span style="color:#B392F0"> withSpring</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">100</span><span style="color:#E1E4E8">, {</span></span>
+<span class="line"><span style="color:#E1E4E8">      damping: </span><span style="color:#79B8FF">10</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">      stiffness: </span><span style="color:#79B8FF">100</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">    });</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    // 重复动画</span></span>
+<span class="line"><span style="color:#E1E4E8">    offset.value </span><span style="color:#F97583">=</span><span style="color:#B392F0"> withRepeat</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#B392F0">      withTiming</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">100</span><span style="color:#E1E4E8">, { duration: </span><span style="color:#79B8FF">500</span><span style="color:#E1E4E8"> }),</span></span>
+<span class="line"><span style="color:#F97583">      -</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">, </span><span style="color:#6A737D">// 无限重复</span></span>
+<span class="line"><span style="color:#79B8FF">      true</span><span style="color:#6A737D"> // 反向</span></span>
+<span class="line"><span style="color:#E1E4E8">    );</span></span>
+<span class="line"><span style="color:#E1E4E8">  };</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  return</span><span style="color:#E1E4E8"> (</span></span>
+<span class="line"><span style="color:#E1E4E8">    &lt;</span><span style="color:#79B8FF">View</span><span style="color:#E1E4E8">&gt;</span></span>
+<span class="line"><span style="color:#E1E4E8">      &lt;</span><span style="color:#79B8FF">Animated.View</span></span>
+<span class="line"><span style="color:#B392F0">        style</span><span style="color:#F97583">=</span><span style="color:#E1E4E8">{[</span></span>
+<span class="line"><span style="color:#E1E4E8">          { width: </span><span style="color:#79B8FF">100</span><span style="color:#E1E4E8">, height: </span><span style="color:#79B8FF">100</span><span style="color:#E1E4E8">, backgroundColor: </span><span style="color:#9ECBFF">&#39;red&#39;</span><span style="color:#E1E4E8"> },</span></span>
+<span class="line"><span style="color:#E1E4E8">          animatedStyle,</span></span>
+<span class="line"><span style="color:#E1E4E8">        ]}</span></span>
+<span class="line"><span style="color:#E1E4E8">      /&gt;</span></span>
+<span class="line"><span style="color:#E1E4E8">      &lt;</span><span style="color:#79B8FF">Button</span><span style="color:#B392F0"> title</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">&quot;移动&quot;</span><span style="color:#B392F0"> onPress</span><span style="color:#F97583">=</span><span style="color:#E1E4E8">{move} /&gt;</span></span>
+<span class="line"><span style="color:#E1E4E8">    &lt;/</span><span style="color:#79B8FF">View</span><span style="color:#E1E4E8">&gt;</span></span>
+<span class="line"><span style="color:#E1E4E8">  );</span></span>
+<span class="line"><span style="color:#E1E4E8">};</span></span></code></pre>
+<h3 id="手势交互">手势交互</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="tsx"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> { Gesture, GestureDetector } </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> &#39;react-native-gesture-handler&#39;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> Animated, {</span></span>
+<span class="line"><span style="color:#E1E4E8">  useSharedValue,</span></span>
+<span class="line"><span style="color:#E1E4E8">  useAnimatedStyle,</span></span>
+<span class="line"><span style="color:#E1E4E8">  withSpring,</span></span>
+<span class="line"><span style="color:#E1E4E8">} </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> &#39;react-native-reanimated&#39;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#B392F0"> DraggableCard</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> () </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">  const</span><span style="color:#79B8FF"> translateX</span><span style="color:#F97583"> =</span><span style="color:#B392F0"> useSharedValue</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">  const</span><span style="color:#79B8FF"> translateY</span><span style="color:#F97583"> =</span><span style="color:#B392F0"> useSharedValue</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">  const</span><span style="color:#79B8FF"> scale</span><span style="color:#F97583"> =</span><span style="color:#B392F0"> useSharedValue</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  const</span><span style="color:#79B8FF"> panGesture</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> Gesture.</span><span style="color:#B392F0">Pan</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">onUpdate</span><span style="color:#E1E4E8">((</span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">      translateX.value </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> e.translationX;</span></span>
+<span class="line"><span style="color:#E1E4E8">      translateY.value </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> e.translationY;</span></span>
+<span class="line"><span style="color:#E1E4E8">    })</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">onEnd</span><span style="color:#E1E4E8">(() </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">      translateX.value </span><span style="color:#F97583">=</span><span style="color:#B392F0"> withSpring</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">      translateY.value </span><span style="color:#F97583">=</span><span style="color:#B392F0"> withSpring</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">    });</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  const</span><span style="color:#79B8FF"> pinchGesture</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> Gesture.</span><span style="color:#B392F0">Pinch</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">onUpdate</span><span style="color:#E1E4E8">((</span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">      scale.value </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> e.scale;</span></span>
+<span class="line"><span style="color:#E1E4E8">    })</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">onEnd</span><span style="color:#E1E4E8">(() </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">      scale.value </span><span style="color:#F97583">=</span><span style="color:#B392F0"> withSpring</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">    });</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  const</span><span style="color:#79B8FF"> composed</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> Gesture.</span><span style="color:#B392F0">Simultaneous</span><span style="color:#E1E4E8">(panGesture, pinchGesture);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  const</span><span style="color:#79B8FF"> animatedStyle</span><span style="color:#F97583"> =</span><span style="color:#B392F0"> useAnimatedStyle</span><span style="color:#E1E4E8">(() </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> ({</span></span>
+<span class="line"><span style="color:#E1E4E8">    transform: [</span></span>
+<span class="line"><span style="color:#E1E4E8">      { translateX: translateX.value },</span></span>
+<span class="line"><span style="color:#E1E4E8">      { translateY: translateY.value },</span></span>
+<span class="line"><span style="color:#E1E4E8">      { scale: scale.value },</span></span>
+<span class="line"><span style="color:#E1E4E8">    ],</span></span>
+<span class="line"><span style="color:#E1E4E8">  }));</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  return</span><span style="color:#E1E4E8"> (</span></span>
+<span class="line"><span style="color:#E1E4E8">    &lt;</span><span style="color:#79B8FF">GestureDetector</span><span style="color:#B392F0"> gesture</span><span style="color:#F97583">=</span><span style="color:#E1E4E8">{composed}&gt;</span></span>
+<span class="line"><span style="color:#E1E4E8">      &lt;</span><span style="color:#79B8FF">Animated.View</span></span>
+<span class="line"><span style="color:#B392F0">        style</span><span style="color:#F97583">=</span><span style="color:#E1E4E8">{[</span></span>
+<span class="line"><span style="color:#E1E4E8">          {</span></span>
+<span class="line"><span style="color:#E1E4E8">            width: </span><span style="color:#79B8FF">150</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">            height: </span><span style="color:#79B8FF">150</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">            backgroundColor: </span><span style="color:#9ECBFF">&#39;#007AFF&#39;</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">            borderRadius: </span><span style="color:#79B8FF">12</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">          },</span></span>
+<span class="line"><span style="color:#E1E4E8">          animatedStyle,</span></span>
+<span class="line"><span style="color:#E1E4E8">        ]}</span></span>
+<span class="line"><span style="color:#E1E4E8">      /&gt;</span></span>
+<span class="line"><span style="color:#E1E4E8">    &lt;/</span><span style="color:#79B8FF">GestureDetector</span><span style="color:#E1E4E8">&gt;</span></span>
+<span class="line"><span style="color:#E1E4E8">  );</span></span>
+<span class="line"><span style="color:#E1E4E8">};</span></span></code></pre>
+<h3 id="列表动画">列表动画</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="tsx"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> Animated, { FadeInDown, FadeOutUp } </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> &#39;react-native-reanimated&#39;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#B392F0"> AnimatedListItem</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> ({ </span><span style="color:#FFAB70">item</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">index</span><span style="color:#E1E4E8"> }</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> { </span><span style="color:#FFAB70">item</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> any</span><span style="color:#E1E4E8">; </span><span style="color:#FFAB70">index</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> number</span><span style="color:#E1E4E8"> }) </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">  return</span><span style="color:#E1E4E8"> (</span></span>
+<span class="line"><span style="color:#E1E4E8">    &lt;</span><span style="color:#79B8FF">Animated.View</span></span>
+<span class="line"><span style="color:#B392F0">      entering</span><span style="color:#F97583">=</span><span style="color:#E1E4E8">{FadeInDown.</span><span style="color:#B392F0">delay</span><span style="color:#E1E4E8">(index </span><span style="color:#F97583">*</span><span style="color:#79B8FF"> 100</span><span style="color:#E1E4E8">).</span><span style="color:#B392F0">springify</span><span style="color:#E1E4E8">()}</span></span>
+<span class="line"><span style="color:#B392F0">      exiting</span><span style="color:#F97583">=</span><span style="color:#E1E4E8">{FadeOutUp}</span></span>
+<span class="line"><span style="color:#B392F0">      layout</span><span style="color:#F97583">=</span><span style="color:#E1E4E8">{Layout.</span><span style="color:#B392F0">springify</span><span style="color:#E1E4E8">()}</span></span>
+<span class="line"><span style="color:#B392F0">      style</span><span style="color:#F97583">=</span><span style="color:#E1E4E8">{styles.item}</span></span>
+<span class="line"><span style="color:#E1E4E8">    &gt;</span></span>
+<span class="line"><span style="color:#E1E4E8">      &lt;</span><span style="color:#79B8FF">Text</span><span style="color:#E1E4E8">&gt;{item.title}&lt;/</span><span style="color:#79B8FF">Text</span><span style="color:#E1E4E8">&gt;</span></span>
+<span class="line"><span style="color:#E1E4E8">    &lt;/</span><span style="color:#79B8FF">Animated.View</span><span style="color:#E1E4E8">&gt;</span></span>
+<span class="line"><span style="color:#E1E4E8">  );</span></span>
+<span class="line"><span style="color:#E1E4E8">};</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// 内置动画</span></span>
+<span class="line"><span style="color:#6A737D">// entering: FadeIn, FadeInDown, FadeInUp, SlideInRight, ZoomIn, BounceIn...</span></span>
+<span class="line"><span style="color:#6A737D">// exiting: FadeOut, SlideOutRight, ZoomOut...</span></span>
+<span class="line"><span style="color:#6A737D">// layout: Layout (自动处理布局变化)</span></span></code></pre>
+<h3 id="自定义动画钩子">自定义动画钩子</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="tsx"><code><span class="line"><span style="color:#6A737D">// hooks/useFlipAnimation.ts</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> { useSharedValue, useAnimatedStyle, withTiming } </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> &#39;react-native-reanimated&#39;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">export</span><span style="color:#F97583"> const</span><span style="color:#B392F0"> useFlipAnimation</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> () </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">  const</span><span style="color:#79B8FF"> rotateY</span><span style="color:#F97583"> =</span><span style="color:#B392F0"> useSharedValue</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  const</span><span style="color:#79B8FF"> frontStyle</span><span style="color:#F97583"> =</span><span style="color:#B392F0"> useAnimatedStyle</span><span style="color:#E1E4E8">(() </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> ({</span></span>
+<span class="line"><span style="color:#E1E4E8">    transform: [</span></span>
+<span class="line"><span style="color:#E1E4E8">      { perspective: </span><span style="color:#79B8FF">1000</span><span style="color:#E1E4E8"> },</span></span>
+<span class="line"><span style="color:#E1E4E8">      { rotateY: </span><span style="color:#9ECBFF">`${</span><span style="color:#E1E4E8">rotateY</span><span style="color:#9ECBFF">.</span><span style="color:#E1E4E8">value</span><span style="color:#9ECBFF">}deg`</span><span style="color:#E1E4E8"> },</span></span>
+<span class="line"><span style="color:#E1E4E8">    ],</span></span>
+<span class="line"><span style="color:#E1E4E8">    opacity: rotateY.value </span><span style="color:#F97583">&lt;</span><span style="color:#79B8FF"> 90</span><span style="color:#F97583"> ?</span><span style="color:#79B8FF"> 1</span><span style="color:#F97583"> :</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">  }));</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  const</span><span style="color:#79B8FF"> backStyle</span><span style="color:#F97583"> =</span><span style="color:#B392F0"> useAnimatedStyle</span><span style="color:#E1E4E8">(() </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> ({</span></span>
+<span class="line"><span style="color:#E1E4E8">    transform: [</span></span>
+<span class="line"><span style="color:#E1E4E8">      { perspective: </span><span style="color:#79B8FF">1000</span><span style="color:#E1E4E8"> },</span></span>
+<span class="line"><span style="color:#E1E4E8">      { rotateY: </span><span style="color:#9ECBFF">`${</span><span style="color:#E1E4E8">rotateY</span><span style="color:#9ECBFF">.</span><span style="color:#E1E4E8">value</span><span style="color:#F97583"> +</span><span style="color:#79B8FF"> 180</span><span style="color:#9ECBFF">}deg`</span><span style="color:#E1E4E8"> },</span></span>
+<span class="line"><span style="color:#E1E4E8">    ],</span></span>
+<span class="line"><span style="color:#E1E4E8">    opacity: rotateY.value </span><span style="color:#F97583">&gt;=</span><span style="color:#79B8FF"> 90</span><span style="color:#F97583"> ?</span><span style="color:#79B8FF"> 1</span><span style="color:#F97583"> :</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">  }));</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  const</span><span style="color:#B392F0"> flip</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> () </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    rotateY.value </span><span style="color:#F97583">=</span><span style="color:#B392F0"> withTiming</span><span style="color:#E1E4E8">(rotateY.value </span><span style="color:#F97583">===</span><span style="color:#79B8FF"> 0</span><span style="color:#F97583"> ?</span><span style="color:#79B8FF"> 180</span><span style="color:#F97583"> :</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">, { duration: </span><span style="color:#79B8FF">500</span><span style="color:#E1E4E8"> });</span></span>
+<span class="line"><span style="color:#E1E4E8">  };</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  return</span><span style="color:#E1E4E8"> { frontStyle, backStyle, flip };</span></span>
+<span class="line"><span style="color:#E1E4E8">};</span></span></code></pre>
+<h2 id="测试策略">测试策略</h2>
+<h3 id="jest-单元测试">Jest 单元测试</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="tsx"><code><span class="line"><span style="color:#6A737D">// __tests__/components/Button.test.tsx</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> { render, fireEvent } </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> &#39;@testing-library/react-native&#39;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> Button </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> &#39;../components/Button&#39;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">describe</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&#39;Button&#39;</span><span style="color:#E1E4E8">, () </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#B392F0">  it</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&#39;renders correctly&#39;</span><span style="color:#E1E4E8">, () </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#E1E4E8"> { </span><span style="color:#79B8FF">getByText</span><span style="color:#E1E4E8"> } </span><span style="color:#F97583">=</span><span style="color:#B392F0"> render</span><span style="color:#E1E4E8">(&lt;</span><span style="color:#79B8FF">Button</span><span style="color:#B392F0"> title</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">&quot;Click me&quot;</span><span style="color:#B392F0"> onPress</span><span style="color:#F97583">=</span><span style="color:#E1E4E8">{() </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> {}} /&gt;);</span></span>
+<span class="line"><span style="color:#B392F0">    expect</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">getByText</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&#39;Click me&#39;</span><span style="color:#E1E4E8">)).</span><span style="color:#B392F0">toBeTruthy</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">  });</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">  it</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&#39;calls onPress when pressed&#39;</span><span style="color:#E1E4E8">, () </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> onPressMock</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> jest.</span><span style="color:#B392F0">fn</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#E1E4E8"> { </span><span style="color:#79B8FF">getByText</span><span style="color:#E1E4E8"> } </span><span style="color:#F97583">=</span><span style="color:#B392F0"> render</span><span style="color:#E1E4E8">(&lt;</span><span style="color:#79B8FF">Button</span><span style="color:#B392F0"> title</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">&quot;Click&quot;</span><span style="color:#B392F0"> onPress</span><span style="color:#F97583">=</span><span style="color:#E1E4E8">{onPressMock} /&gt;);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    fireEvent.</span><span style="color:#B392F0">press</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">getByText</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&#39;Click&#39;</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"><span style="color:#B392F0">    expect</span><span style="color:#E1E4E8">(onPressMock).</span><span style="color:#B392F0">toHaveBeenCalledTimes</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">  });</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">  it</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&#39;is disabled when disabled prop is true&#39;</span><span style="color:#E1E4E8">, () </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> onPressMock</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> jest.</span><span style="color:#B392F0">fn</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#E1E4E8"> { </span><span style="color:#79B8FF">getByText</span><span style="color:#E1E4E8"> } </span><span style="color:#F97583">=</span><span style="color:#B392F0"> render</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#E1E4E8">      &lt;</span><span style="color:#79B8FF">Button</span><span style="color:#B392F0"> title</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">&quot;Click&quot;</span><span style="color:#B392F0"> onPress</span><span style="color:#F97583">=</span><span style="color:#E1E4E8">{onPressMock} </span><span style="color:#B392F0">disabled</span><span style="color:#E1E4E8"> /&gt;</span></span>
+<span class="line"><span style="color:#E1E4E8">    );</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    fireEvent.</span><span style="color:#B392F0">press</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">getByText</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&#39;Click&#39;</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"><span style="color:#B392F0">    expect</span><span style="color:#E1E4E8">(onPressMock).not.</span><span style="color:#B392F0">toHaveBeenCalled</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">  });</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span></code></pre>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="tsx"><code><span class="line"><span style="color:#6A737D">// __tests__/hooks/useCounter.test.ts</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> { renderHook, act } </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> &#39;@testing-library/react-hooks&#39;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> { useCounter } </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> &#39;../hooks/useCounter&#39;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">describe</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&#39;useCounter&#39;</span><span style="color:#E1E4E8">, () </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#B392F0">  it</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&#39;initializes with default value&#39;</span><span style="color:#E1E4E8">, () </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#E1E4E8"> { </span><span style="color:#79B8FF">result</span><span style="color:#E1E4E8"> } </span><span style="color:#F97583">=</span><span style="color:#B392F0"> renderHook</span><span style="color:#E1E4E8">(() </span><span style="color:#F97583">=&gt;</span><span style="color:#B392F0"> useCounter</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#B392F0">    expect</span><span style="color:#E1E4E8">(result.current.count).</span><span style="color:#B392F0">toBe</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">  });</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">  it</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&#39;increments count&#39;</span><span style="color:#E1E4E8">, () </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#E1E4E8"> { </span><span style="color:#79B8FF">result</span><span style="color:#E1E4E8"> } </span><span style="color:#F97583">=</span><span style="color:#B392F0"> renderHook</span><span style="color:#E1E4E8">(() </span><span style="color:#F97583">=&gt;</span><span style="color:#B392F0"> useCounter</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">    act</span><span style="color:#E1E4E8">(() </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">      result.current.</span><span style="color:#B392F0">increment</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">    });</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">    expect</span><span style="color:#E1E4E8">(result.current.count).</span><span style="color:#B392F0">toBe</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">  });</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span></code></pre>
+<h3 id="detox-e2e-测试">Detox E2E 测试</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">npm</span><span style="color:#9ECBFF"> install</span><span style="color:#9ECBFF"> detox</span><span style="color:#9ECBFF"> detox</span><span style="color:#79B8FF"> --save-dev</span></span></code></pre>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#6A737D">// e2e/login.test.ts</span></span>
+<span class="line"><span style="color:#B392F0">describe</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&#39;Login&#39;</span><span style="color:#E1E4E8">, () </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#B392F0">  beforeAll</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">async</span><span style="color:#E1E4E8"> () </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    await</span><span style="color:#E1E4E8"> device.</span><span style="color:#B392F0">launchApp</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">  });</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">  beforeEach</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">async</span><span style="color:#E1E4E8"> () </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    await</span><span style="color:#E1E4E8"> device.</span><span style="color:#B392F0">reloadReactNative</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">  });</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">  it</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&#39;should show login form&#39;</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">async</span><span style="color:#E1E4E8"> () </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    await</span><span style="color:#B392F0"> expect</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">element</span><span style="color:#E1E4E8">(by.</span><span style="color:#B392F0">id</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&#39;login-form&#39;</span><span style="color:#E1E4E8">))).</span><span style="color:#B392F0">toBeVisible</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">    await</span><span style="color:#B392F0"> expect</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">element</span><span style="color:#E1E4E8">(by.</span><span style="color:#B392F0">id</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&#39;email-input&#39;</span><span style="color:#E1E4E8">))).</span><span style="color:#B392F0">toBeVisible</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">    await</span><span style="color:#B392F0"> expect</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">element</span><span style="color:#E1E4E8">(by.</span><span style="color:#B392F0">id</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&#39;password-input&#39;</span><span style="color:#E1E4E8">))).</span><span style="color:#B392F0">toBeVisible</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">  });</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">  it</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&#39;should login successfully&#39;</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">async</span><span style="color:#E1E4E8"> () </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    await</span><span style="color:#B392F0"> element</span><span style="color:#E1E4E8">(by.</span><span style="color:#B392F0">id</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&#39;email-input&#39;</span><span style="color:#E1E4E8">)).</span><span style="color:#B392F0">typeText</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&#39;test@example.com&#39;</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">    await</span><span style="color:#B392F0"> element</span><span style="color:#E1E4E8">(by.</span><span style="color:#B392F0">id</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&#39;password-input&#39;</span><span style="color:#E1E4E8">)).</span><span style="color:#B392F0">typeText</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&#39;password123&#39;</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">    await</span><span style="color:#B392F0"> element</span><span style="color:#E1E4E8">(by.</span><span style="color:#B392F0">id</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&#39;login-button&#39;</span><span style="color:#E1E4E8">)).</span><span style="color:#B392F0">tap</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    // 等待导航完成</span></span>
+<span class="line"><span style="color:#F97583">    await</span><span style="color:#B392F0"> waitFor</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">element</span><span style="color:#E1E4E8">(by.</span><span style="color:#B392F0">id</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&#39;home-screen&#39;</span><span style="color:#E1E4E8">)))</span></span>
+<span class="line"><span style="color:#E1E4E8">      .</span><span style="color:#B392F0">toBeVisible</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">      .</span><span style="color:#B392F0">withTimeout</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">5000</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">  });</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">  it</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&#39;should show error for invalid credentials&#39;</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">async</span><span style="color:#E1E4E8"> () </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    await</span><span style="color:#B392F0"> element</span><span style="color:#E1E4E8">(by.</span><span style="color:#B392F0">id</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&#39;email-input&#39;</span><span style="color:#E1E4E8">)).</span><span style="color:#B392F0">typeText</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&#39;wrong@example.com&#39;</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">    await</span><span style="color:#B392F0"> element</span><span style="color:#E1E4E8">(by.</span><span style="color:#B392F0">id</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&#39;password-input&#39;</span><span style="color:#E1E4E8">)).</span><span style="color:#B392F0">typeText</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&#39;wrongpass&#39;</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">    await</span><span style="color:#B392F0"> element</span><span style="color:#E1E4E8">(by.</span><span style="color:#B392F0">id</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&#39;login-button&#39;</span><span style="color:#E1E4E8">)).</span><span style="color:#B392F0">tap</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    await</span><span style="color:#B392F0"> expect</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">element</span><span style="color:#E1E4E8">(by.</span><span style="color:#B392F0">text</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&#39;登录失败&#39;</span><span style="color:#E1E4E8">))).</span><span style="color:#B392F0">toBeVisible</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">  });</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span></code></pre>
+<p><strong>配置文件</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="json"><code><span class="line"><span style="color:#6A737D">// .detoxrc.json</span></span>
+<span class="line"><span style="color:#E1E4E8">{</span></span>
+<span class="line"><span style="color:#79B8FF">  &quot;testRunner&quot;</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">&quot;jest&quot;</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">  &quot;runnerConfig&quot;</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">&quot;e2e/config.json&quot;</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">  &quot;configurations&quot;</span><span style="color:#E1E4E8">: {</span></span>
+<span class="line"><span style="color:#79B8FF">    &quot;ios.sim.debug&quot;</span><span style="color:#E1E4E8">: {</span></span>
+<span class="line"><span style="color:#79B8FF">      &quot;type&quot;</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">&quot;ios.simulator&quot;</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">      &quot;binaryPath&quot;</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">&quot;ios/build/Build/Products/Debug-iphonesimulator/MyApp.app&quot;</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">      &quot;build&quot;</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">&quot;xcodebuild -workspace ios/MyApp.xcworkspace -scheme MyApp -configuration Debug -sdk iphonesimulator -derivedDataPath ios/build&quot;</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">      &quot;device&quot;</span><span style="color:#E1E4E8">: {</span></span>
+<span class="line"><span style="color:#79B8FF">        &quot;type&quot;</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">&quot;iPhone 15&quot;</span></span>
+<span class="line"><span style="color:#E1E4E8">      }</span></span>
+<span class="line"><span style="color:#E1E4E8">    },</span></span>
+<span class="line"><span style="color:#79B8FF">    &quot;android.emu.debug&quot;</span><span style="color:#E1E4E8">: {</span></span>
+<span class="line"><span style="color:#79B8FF">      &quot;type&quot;</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">&quot;android.emulator&quot;</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">      &quot;binaryPath&quot;</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">&quot;android/app/build/outputs/apk/debug/app-debug.apk&quot;</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">      &quot;build&quot;</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">&quot;cd android &amp;&amp; ./gradlew assembleDebug assembleAndroidTest -DtestBuildType=debug&quot;</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">      &quot;device&quot;</span><span style="color:#E1E4E8">: {</span></span>
+<span class="line"><span style="color:#79B8FF">        &quot;avdName&quot;</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">&quot;Pixel_5_API_33&quot;</span></span>
+<span class="line"><span style="color:#E1E4E8">      }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h2 id="应用发布">应用发布</h2>
+<h3 id="ios-发布">iOS 发布</h3>
+<p><strong>1. 配置</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="ruby"><code><span class="line"><span style="color:#6A737D"># ios/App/App.xcworkspace</span></span>
+<span class="line"><span style="color:#6A737D"># 配置 Bundle Identifier</span></span>
+<span class="line"><span style="color:#6A737D"># 配置 Signing &amp; Capabilities</span></span>
+<span class="line"><span style="color:#6A737D"># 配置版本号和构建号</span></span></code></pre>
+<p><strong>2. App Store Connect</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#6A737D"># 安装 Fastlane</span></span>
+<span class="line"><span style="color:#B392F0">gem</span><span style="color:#9ECBFF"> install</span><span style="color:#9ECBFF"> fastlane</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D"># 初始化</span></span>
+<span class="line"><span style="color:#79B8FF">cd</span><span style="color:#9ECBFF"> ios</span><span style="color:#E1E4E8"> &amp;&amp; </span><span style="color:#B392F0">fastlane</span><span style="color:#9ECBFF"> init</span></span></code></pre>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="ruby"><code><span class="line"><span style="color:#6A737D"># ios/fastlane/Fastfile</span></span>
+<span class="line"><span style="color:#B392F0">default_platform</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">:ios</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">platform </span><span style="color:#79B8FF">:ios</span><span style="color:#F97583"> do</span></span>
+<span class="line"><span style="color:#E1E4E8">  desc </span><span style="color:#9ECBFF">&quot;构建并上传到 TestFlight&quot;</span></span>
+<span class="line"><span style="color:#E1E4E8">  lane </span><span style="color:#79B8FF">:beta</span><span style="color:#F97583"> do</span></span>
+<span class="line"><span style="color:#6A737D">    # 增加构建号</span></span>
+<span class="line"><span style="color:#E1E4E8">    increment_build_number</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    # 构建</span></span>
+<span class="line"><span style="color:#B392F0">    gym</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#79B8FF">      scheme:</span><span style="color:#9ECBFF"> &quot;MyApp&quot;</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">      export_method:</span><span style="color:#9ECBFF"> &quot;app-store&quot;</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">      output_directory:</span><span style="color:#9ECBFF"> &quot;./build&quot;</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">    )</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    # 上传到 TestFlight</span></span>
+<span class="line"><span style="color:#B392F0">    pilot</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#79B8FF">      skip_waiting_for_build_processing:</span><span style="color:#79B8FF"> true</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">    )</span></span>
+<span class="line"><span style="color:#F97583">  end</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">  desc </span><span style="color:#9ECBFF">&quot;提交到 App Store&quot;</span></span>
+<span class="line"><span style="color:#E1E4E8">  lane </span><span style="color:#79B8FF">:release</span><span style="color:#F97583"> do</span></span>
+<span class="line"><span style="color:#6A737D">    # 构建</span></span>
+<span class="line"><span style="color:#B392F0">    gym</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#79B8FF">      scheme:</span><span style="color:#9ECBFF"> &quot;MyApp&quot;</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">      export_method:</span><span style="color:#9ECBFF"> &quot;app-store&quot;</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">    )</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    # 上传</span></span>
+<span class="line"><span style="color:#B392F0">    deliver</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#79B8FF">      force:</span><span style="color:#79B8FF"> true</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">      submit_for_review:</span><span style="color:#79B8FF"> true</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">      automatic_release:</span><span style="color:#79B8FF"> true</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">    )</span></span>
+<span class="line"><span style="color:#F97583">  end</span></span>
+<span class="line"><span style="color:#F97583">end</span></span></code></pre>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#6A737D"># 发布测试版</span></span>
+<span class="line"><span style="color:#B392F0">fastlane</span><span style="color:#9ECBFF"> beta</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D"># 正式发布</span></span>
+<span class="line"><span style="color:#B392F0">fastlane</span><span style="color:#9ECBFF"> release</span></span></code></pre>
+<h3 id="android-发布">Android 发布</h3>
+<p><strong>1. 签名配置</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#6A737D"># 生成签名密钥</span></span>
+<span class="line"><span style="color:#B392F0">keytool</span><span style="color:#79B8FF"> -genkeypair</span><span style="color:#79B8FF"> -v</span><span style="color:#79B8FF"> -storetype</span><span style="color:#9ECBFF"> PKCS12</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#79B8FF">  -keystore</span><span style="color:#9ECBFF"> my-release-key.keystore</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#79B8FF">  -alias</span><span style="color:#9ECBFF"> my-key-alias</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#79B8FF">  -keyalg</span><span style="color:#9ECBFF"> RSA</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#79B8FF">  -keysize</span><span style="color:#79B8FF"> 2048</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#79B8FF">  -validity</span><span style="color:#79B8FF"> 10000</span></span></code></pre>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="plaintext"><code><span class="line"><span>// android/app/build.gradle</span></span>
+<span class="line"><span>android {</span></span>
+<span class="line"><span>  signingConfigs {</span></span>
+<span class="line"><span>    release {</span></span>
+<span class="line"><span>      storeFile file(&#39;my-release-key.keystore&#39;)</span></span>
+<span class="line"><span>      storePassword System.getenv(&quot;KEYSTORE_PASSWORD&quot;)</span></span>
+<span class="line"><span>      keyAlias &quot;my-key-alias&quot;</span></span>
+<span class="line"><span>      keyPassword System.getenv(&quot;KEY_PASSWORD&quot;)</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>  }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>  buildTypes {</span></span>
+<span class="line"><span>    release {</span></span>
+<span class="line"><span>      signingConfig signingConfigs.release</span></span>
+<span class="line"><span>      minifyEnabled true</span></span>
+<span class="line"><span>      proguardFiles getDefaultProguardFile(&quot;proguard-android.txt&quot;), &quot;proguard-rules.pro&quot;</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>  }</span></span>
+<span class="line"><span>}</span></span></code></pre>
+<p><strong>2. 构建发布版</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#6A737D"># 构建 AAB (Google Play 推荐)</span></span>
+<span class="line"><span style="color:#79B8FF">cd</span><span style="color:#9ECBFF"> android</span></span>
+<span class="line"><span style="color:#B392F0">./gradlew</span><span style="color:#9ECBFF"> bundleRelease</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D"># 输出: android/app/build/outputs/bundle/release/app-release.aab</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D"># 构建 APK</span></span>
+<span class="line"><span style="color:#B392F0">./gradlew</span><span style="color:#9ECBFF"> assembleRelease</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D"># 输出: android/app/build/outputs/apk/release/app-release.apk</span></span></code></pre>
+<h3 id="cicd-配置">CI/CD 配置</h3>
+<p><strong>GitHub Actions</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#6A737D"># .github/workflows/release.yml</span></span>
+<span class="line"><span style="color:#85E89D">name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">Release</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#79B8FF">on</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">  push</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">    tags</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">      - </span><span style="color:#9ECBFF">&#39;v*&#39;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#85E89D">jobs</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">  ios</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">    runs-on</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">macos-latest</span></span>
+<span class="line"><span style="color:#85E89D">    steps</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">      - </span><span style="color:#85E89D">uses</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">actions/checkout@v4</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">      - </span><span style="color:#85E89D">uses</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">actions/setup-node@v4</span></span>
+<span class="line"><span style="color:#85E89D">        with</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">          node-version</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">&#39;20&#39;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">      - </span><span style="color:#85E89D">uses</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">ruby/setup-ruby@v1</span></span>
+<span class="line"><span style="color:#85E89D">        with</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">          ruby-version</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">&#39;3.2&#39;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">      - </span><span style="color:#85E89D">name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">Install dependencies</span></span>
+<span class="line"><span style="color:#85E89D">        run</span><span style="color:#E1E4E8">: </span><span style="color:#F97583">|</span></span>
+<span class="line"><span style="color:#9ECBFF">          npm install -g pnpm</span></span>
+<span class="line"><span style="color:#9ECBFF">          pnpm install</span></span>
+<span class="line"><span style="color:#9ECBFF">          cd ios &amp;&amp; pod install</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">      - </span><span style="color:#85E89D">name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">Setup Fastlane</span></span>
+<span class="line"><span style="color:#85E89D">        run</span><span style="color:#E1E4E8">: </span><span style="color:#F97583">|</span></span>
+<span class="line"><span style="color:#9ECBFF">          gem install fastlane</span></span>
+<span class="line"><span style="color:#9ECBFF">          cd ios &amp;&amp; fastlane beta</span></span>
+<span class="line"><span style="color:#85E89D">        env</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">          APP_STORE_CONNECT_API_KEY_ID</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}</span></span>
+<span class="line"><span style="color:#85E89D">          APP_STORE_CONNECT_API_KEY_ISSUER_ID</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}</span></span>
+<span class="line"><span style="color:#85E89D">          APP_STORE_CONNECT_API_KEY_CONTENT</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#85E89D">  android</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">    runs-on</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">ubuntu-latest</span></span>
+<span class="line"><span style="color:#85E89D">    steps</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">      - </span><span style="color:#85E89D">uses</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">actions/checkout@v4</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">      - </span><span style="color:#85E89D">uses</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">actions/setup-node@v4</span></span>
+<span class="line"><span style="color:#85E89D">        with</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">          node-version</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">&#39;20&#39;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">      - </span><span style="color:#85E89D">uses</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">actions/setup-java@v4</span></span>
+<span class="line"><span style="color:#85E89D">        with</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">          distribution</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">&#39;temurin&#39;</span></span>
+<span class="line"><span style="color:#85E89D">          java-version</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">&#39;17&#39;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">      - </span><span style="color:#85E89D">name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">Install dependencies</span></span>
+<span class="line"><span style="color:#85E89D">        run</span><span style="color:#E1E4E8">: </span><span style="color:#F97583">|</span></span>
+<span class="line"><span style="color:#9ECBFF">          npm install -g pnpm</span></span>
+<span class="line"><span style="color:#9ECBFF">          pnpm install</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">      - </span><span style="color:#85E89D">name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">Build Release AAB</span></span>
+<span class="line"><span style="color:#85E89D">        run</span><span style="color:#E1E4E8">: </span><span style="color:#F97583">|</span></span>
+<span class="line"><span style="color:#9ECBFF">          cd android</span></span>
+<span class="line"><span style="color:#9ECBFF">          ./gradlew bundleRelease</span></span>
+<span class="line"><span style="color:#85E89D">        env</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">          KEYSTORE_PASSWORD</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">${{ secrets.KEYSTORE_PASSWORD }}</span></span>
+<span class="line"><span style="color:#85E89D">          KEY_PASSWORD</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">${{ secrets.KEY_PASSWORD }}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">      - </span><span style="color:#85E89D">name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">Upload to Play Store</span></span>
+<span class="line"><span style="color:#85E89D">        uses</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">r0adkll/upload-google-play@v1</span></span>
+<span class="line"><span style="color:#85E89D">        with</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">          serviceAccountJsonPlainText</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">${{ secrets.PLAY_STORE_SERVICE_ACCOUNT }}</span></span>
+<span class="line"><span style="color:#85E89D">          packageName</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">com.myapp</span></span>
+<span class="line"><span style="color:#85E89D">          releaseFiles</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">android/app/build/outputs/bundle/release/app-release.aab</span></span>
+<span class="line"><span style="color:#85E89D">          track</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">internal</span></span></code></pre>
+<h3 id="codepush-热更新">CodePush 热更新</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">npm</span><span style="color:#9ECBFF"> install</span><span style="color:#9ECBFF"> react-native-code-push</span></span></code></pre>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="tsx"><code><span class="line"><span style="color:#6A737D">// App.tsx</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> CodePush </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> &#39;react-native-code-push&#39;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#B392F0"> App</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> () </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">  return</span><span style="color:#E1E4E8"> (</span></span>
+<span class="line"><span style="color:#E1E4E8">    &lt;</span><span style="color:#79B8FF">NavigationContainer</span><span style="color:#E1E4E8">&gt;</span></span>
+<span class="line"><span style="color:#E1E4E8">      {</span><span style="color:#6A737D">/* ... */</span><span style="color:#E1E4E8">}</span></span>
+<span class="line"><span style="color:#E1E4E8">    &lt;/</span><span style="color:#79B8FF">NavigationContainer</span><span style="color:#E1E4E8">&gt;</span></span>
+<span class="line"><span style="color:#E1E4E8">  );</span></span>
+<span class="line"><span style="color:#E1E4E8">};</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> codePushOptions</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">  checkFrequency: CodePush.CheckFrequency.</span><span style="color:#79B8FF">ON_APP_START</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">  installMode: CodePush.InstallMode.</span><span style="color:#79B8FF">IMMEDIATE</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">  mandatoryInstallMode: CodePush.InstallMode.</span><span style="color:#79B8FF">IMMEDIATE</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">  updateDialog: {</span></span>
+<span class="line"><span style="color:#E1E4E8">    title: </span><span style="color:#9ECBFF">&#39;更新可用&#39;</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">    optionalUpdateMessage: </span><span style="color:#9ECBFF">&#39;有新版本可用，是否更新？&#39;</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">    optionalInstallButtonLabel: </span><span style="color:#9ECBFF">&#39;更新&#39;</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">    optionalIgnoreButtonLabel: </span><span style="color:#9ECBFF">&#39;忽略&#39;</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">  },</span></span>
+<span class="line"><span style="color:#E1E4E8">};</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">export</span><span style="color:#F97583"> default</span><span style="color:#B392F0"> CodePush</span><span style="color:#E1E4E8">(codePushOptions)(App);</span></span></code></pre>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#6A737D"># 发布热更新</span></span>
+<span class="line"><span style="color:#B392F0">appcenter</span><span style="color:#9ECBFF"> codepush</span><span style="color:#9ECBFF"> release-react</span><span style="color:#79B8FF"> -a</span><span style="color:#F97583"> &lt;</span><span style="color:#9ECBFF">owne</span><span style="color:#E1E4E8">r</span><span style="color:#F97583">&gt;</span><span style="color:#9ECBFF">/</span><span style="color:#F97583">&lt;</span><span style="color:#9ECBFF">ap</span><span style="color:#E1E4E8">p</span><span style="color:#F97583">&gt;</span><span style="color:#79B8FF"> -d</span><span style="color:#9ECBFF"> Production</span></span></code></pre>
+<h2 id="小结">小结</h2>
+<div class="mindmap-container my-8" data-astro-cid-emamgkm6> <div class="text-caption uppercase tracking-wider text-muted mb-4 font-semibold" data-astro-cid-emamgkm6>精通级能力清单</div> <div class="mindmap bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg p-6" data-astro-cid-emamgkm6> 
+    <div class="mindmap-node" style="margin-left: 0px">
+      <div class="mindmap-item has-children">
+        <span class="mindmap-arrow">▶</span>
+        <span class="mindmap-text">精通能力</span>
+      </div>
+  <div class="mindmap-children">
+    <div class="mindmap-node" style="margin-left: 24px">
+      <div class="mindmap-item has-children">
+        <span class="mindmap-arrow">▶</span>
+        <span class="mindmap-text">原生开发</span>
+      </div>
+  <div class="mindmap-children">
+    <div class="mindmap-node" style="margin-left: 48px">
+      <div class="mindmap-item ">
+        <span class="mindmap-dot"></span>
+        <span class="mindmap-text">TurboModules 新架构</span>
+      </div>
+  </div>
+    <div class="mindmap-node" style="margin-left: 48px">
+      <div class="mindmap-item ">
+        <span class="mindmap-dot"></span>
+        <span class="mindmap-text">iOS / Android 双端实现</span>
+      </div>
+  </div>
+    <div class="mindmap-node" style="margin-left: 48px">
+      <div class="mindmap-item ">
+        <span class="mindmap-dot"></span>
+        <span class="mindmap-text">原生事件通信</span>
+      </div>
+  </div></div></div>
+    <div class="mindmap-node" style="margin-left: 24px">
+      <div class="mindmap-item has-children">
+        <span class="mindmap-arrow">▶</span>
+        <span class="mindmap-text">动画精通</span>
+      </div>
+  <div class="mindmap-children">
+    <div class="mindmap-node" style="margin-left: 48px">
+      <div class="mindmap-item ">
+        <span class="mindmap-dot"></span>
+        <span class="mindmap-text">Reanimated 3 高性能动画</span>
+      </div>
+  </div>
+    <div class="mindmap-node" style="margin-left: 48px">
+      <div class="mindmap-item ">
+        <span class="mindmap-dot"></span>
+        <span class="mindmap-text">手势交互系统</span>
+      </div>
+  </div>
+    <div class="mindmap-node" style="margin-left: 48px">
+      <div class="mindmap-item ">
+        <span class="mindmap-dot"></span>
+        <span class="mindmap-text">复杂动效实现</span>
+      </div>
+  </div></div></div>
+    <div class="mindmap-node" style="margin-left: 24px">
+      <div class="mindmap-item has-children">
+        <span class="mindmap-arrow">▶</span>
+        <span class="mindmap-text">质量保障</span>
+      </div>
+  <div class="mindmap-children">
+    <div class="mindmap-node" style="margin-left: 48px">
+      <div class="mindmap-item ">
+        <span class="mindmap-dot"></span>
+        <span class="mindmap-text">单元测试覆盖</span>
+      </div>
+  </div>
+    <div class="mindmap-node" style="margin-left: 48px">
+      <div class="mindmap-item ">
+        <span class="mindmap-dot"></span>
+        <span class="mindmap-text">E2E 自动化测试</span>
+      </div>
+  </div>
+    <div class="mindmap-node" style="margin-left: 48px">
+      <div class="mindmap-item ">
+        <span class="mindmap-dot"></span>
+        <span class="mindmap-text">持续集成</span>
+      </div>
+  </div></div></div>
+    <div class="mindmap-node" style="margin-left: 24px">
+      <div class="mindmap-item has-children">
+        <span class="mindmap-arrow">▶</span>
+        <span class="mindmap-text">发布运维</span>
+      </div>
+  <div class="mindmap-children">
+    <div class="mindmap-node" style="margin-left: 48px">
+      <div class="mindmap-item ">
+        <span class="mindmap-dot"></span>
+        <span class="mindmap-text">App Store / Play Store</span>
+      </div>
+  </div>
+    <div class="mindmap-node" style="margin-left: 48px">
+      <div class="mindmap-item ">
+        <span class="mindmap-dot"></span>
+        <span class="mindmap-text">CI/CD 自动化</span>
+      </div>
+  </div>
+    <div class="mindmap-node" style="margin-left: 48px">
+      <div class="mindmap-item ">
+        <span class="mindmap-dot"></span>
+        <span class="mindmap-text">CodePush 热更新</span>
+      </div>
+  </div></div></div></div></div> </div> </div> 
+<h2 id="系列总结">系列总结</h2>
+<p>React Native 全栈指南三篇完整覆盖：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>阶段</th><th>核心内容</th><th>目标</th></tr></thead><tbody><tr><td><strong>入门</strong></td><td>环境搭建、核心组件、样式布局</td><td>能开发简单应用</td></tr><tr><td><strong>进阶</strong></td><td>导航、状态管理、网络、性能</td><td>能开发完整应用</td></tr><tr><td><strong>精通</strong></td><td>原生模块、动画、测试、发布</td><td>能独立发布商业应用</td></tr></tbody></table>
+<p>持续学习建议：</p>
+<ul>
+<li>关注 <a href="https://reactnative.dev/blog">React Native 官方博客</a></li>
+<li>参与社区讨论 (Discord, GitHub Discussions)</li>
+<li>实践开源项目</li>
+<li>持续关注新架构演进</li>
+</ul>  </div> <!-- Sidebar (desktop only) --> <aside class="hidden lg:block"> <div class="sticky top-24"> <astro-island uid="2r6rGf" prefix="r6" component-url="/_astro/TableOfContents.BkQNCNIv.js" component-export="default" renderer-url="/_astro/client.nc8uITnr.js" props="{}" ssr client="load" opts="{&quot;name&quot;:&quot;TableOfContents&quot;,&quot;value&quot;:true}"></astro-island> </div> </aside> </div> </div> </article>  <footer class="border-t border-[var(--color-border)] py-5 sm:py-8 bg-[var(--color-bg)]"> <div class="container"> <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0"> <a href="/articles" class="text-sm text-secondary hover:text-primary transition-colors flex items-center gap-1.5"> <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path> </svg>
+返回文章列表
+</a> <button class="text-sm text-secondary hover:text-primary transition-colors sm:self-center">
+分享文章
+</button> </div> </div> </footer>  </main> <footer class="border-t border-[var(--color-border)] py-8 mt-auto"> <div class="container flex flex-col sm:flex-row items-center justify-between gap-4"> <p class="text-sm text-muted">
+© 2026 DEV.JOURNAL. All rights reserved.
+</p> <nav class="flex items-center gap-6"> <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="text-sm text-muted hover:text-primary transition-colors">
+GitHub
+</a> <a href="/rss.xml" class="text-sm text-muted hover:text-primary transition-colors">
+RSS
+</a> </nav> </div> </footer> </body></html> <script type="module">const e=document.getElementById("mobile-toc-toggle"),o=document.getElementById("mobile-toc-content"),n=document.querySelector(".mobile-toc-chevron");e?.addEventListener("click",()=>{const t=!o?.classList.contains("hidden");o?.classList.toggle("hidden",t),n?.classList.toggle("rotate-180",!t),e.setAttribute("aria-expanded",String(!t))});</script>
