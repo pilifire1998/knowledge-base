@@ -20,20 +20,30 @@ const { title, description, pubDate, tags, readingTime = 5 } = Astro.props;
   <article class="min-h-screen">
     <!-- Article Header - Full Width -->
     <header class="border-b border-[var(--color-border)] bg-[var(--color-surface)]">
-      <div class="container py-8 sm:py-12 lg:py-16">
+      <div class="container py-6 sm:py-10 lg:py-14">
         <div class="max-w-4xl">
-          <div class="flex flex-wrap gap-2 sm:gap-3 mb-4 sm:mb-6">
+          <!-- Tags -->
+          <div class="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-5">
             {tags.map((tag) => (
-              <span class="text-caption uppercase tracking-wider text-secondary px-2 py-1 border border-[var(--color-border)]">
+              <a
+                href={`/tags/${tag}`}
+                class="text-[10px] sm:text-caption uppercase tracking-wider text-secondary px-2 py-0.5 border border-[var(--color-border)] rounded-sm hover:border-primary hover:text-primary transition-colors"
+              >
                 {tag}
-              </span>
+              </a>
             ))}
           </div>
-          <h1 class="text-display text-primary mb-4 sm:mb-6">{title}</h1>
-          <p class="text-base sm:text-xl text-secondary mb-4 sm:mb-6 max-w-2xl">{description}</p>
-          <div class="flex items-center gap-4 sm:gap-6 text-caption text-muted">
-            <span>{pubDate.toLocaleDateString('zh-CN')}</span>
-            <span>·</span>
+
+          <!-- Title -->
+          <h1 class="text-display text-primary mb-3 sm:mb-5 leading-tight">{title}</h1>
+
+          <!-- Description -->
+          <p class="text-sm sm:text-lg text-secondary mb-4 sm:mb-5 max-w-2xl leading-relaxed">{description}</p>
+
+          <!-- Meta -->
+          <div class="flex items-center gap-3 sm:gap-5 text-[11px] sm:text-caption text-muted">
+            <time datetime={pubDate.toISOString()}>{pubDate.toLocaleDateString('zh-CN')}</time>
+            <span class="hidden sm:inline">·</span>
             <span>{readingTime} 分钟阅读</span>
           </div>
         </div>
@@ -45,11 +55,11 @@ const { title, description, pubDate, tags, readingTime = 5 } = Astro.props;
       <div class="container">
         <button
           id="mobile-toc-toggle"
-          class="w-full flex items-center justify-between py-3 text-sm font-semibold text-secondary"
+          class="w-full flex items-center justify-between py-3.5 sm:py-4 text-sm font-semibold text-secondary active:bg-[var(--color-surface)] rounded-none -mx-4 px-4 sm:-mx-6 sm:px-6"
           aria-expanded="false"
         >
           <span>目录导航</span>
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mobile-toc-chevron transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mobile-toc-chevron transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
           </svg>
         </button>
@@ -60,10 +70,10 @@ const { title, description, pubDate, tags, readingTime = 5 } = Astro.props;
     </div>
 
     <!-- Article Content - With TOC Sidebar -->
-    <div class="container py-8 sm:py-12 lg:py-16">
+    <div class="container py-6 sm:py-10 lg:py-14">
       <div class="lg:grid lg:grid-cols-[1fr_280px] lg:gap-16 lg:max-w-6xl lg:mx-auto">
         <!-- Main Content -->
-        <div class="prose min-w-0 max-w-none">
+        <div class="prose min-w-0 max-w-none px-0 sm:px-0">
           <slot />
         </div>
 
@@ -78,15 +88,18 @@ const { title, description, pubDate, tags, readingTime = 5 } = Astro.props;
   </article>
 
   <!-- Article Footer -->
-  <footer class="border-t border-[var(--color-border)] py-6 sm:py-8 bg-[var(--color-bg)]">
+  <footer class="border-t border-[var(--color-border)] py-5 sm:py-8 bg-[var(--color-bg)]">
     <div class="container">
-      <div class="max-w-4xl flex items-center justify-between">
-        <a href="/articles" class="text-sm text-secondary hover:text-primary transition-colors">
-          ← 返回文章列表
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
+        <a href="/articles" class="text-sm text-secondary hover:text-primary transition-colors flex items-center gap-1.5">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+          返回文章列表
         </a>
-        <div class="flex items-center gap-4 text-muted text-sm">
-          <button class="hover:text-primary transition-colors">分享</button>
-        </div>
+        <button class="text-sm text-secondary hover:text-primary transition-colors sm:self-center">
+          分享文章
+        </button>
       </div>
     </div>
   </footer>

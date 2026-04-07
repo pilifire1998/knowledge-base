@@ -50,14 +50,14 @@ const locations = {
 
 // 类型配置
 const typeConfig: Record<string, { color: string; emoji: string; label: string }> = {
-  temple: { color: 'red', emoji: '⛩️', label: '寺庙神社' },
-  food: { color: 'orange', emoji: '🍜', label: '美食' },
-  shopping: { color: 'blue', emoji: '🛍️', label: '购物' },
-  view: { color: 'green', emoji: '🗼', label: '观景' },
-  nature: { color: 'green', emoji: '🌲', label: '自然' },
-  attraction: { color: 'purple', emoji: '🎢', label: '景点' },
-  street: { color: 'yellow', emoji: '🏠', label: '街道' },
-  transport: { color: 'grey', emoji: '🚃', label: '交通' }
+  temple: { color: '#e74c3c', emoji: '⛩️', label: '寺庙神社' },
+  food: { color: '#e67e22', emoji: '🍜', label: '美食' },
+  shopping: { color: '#3498db', emoji: '🛍️', label: '购物' },
+  view: { color: '#2ecc71', emoji: '🗼', label: '观景' },
+  nature: { color: '#1abc9c', emoji: '🌲', label: '自然' },
+  attraction: { color: '#9b59b6', emoji: '🎢', label: '景点' },
+  street: { color: '#f39c12', emoji: '🏠', label: '街道' },
+  transport: { color: '#95a5a6', emoji: '🚃', label: '交通' }
 };
 
 // 日期颜色
@@ -92,7 +92,6 @@ export default function TravelMap() {
     return true;
   });
 
-  // 客户端检查
   useEffect(() => {
     setIsClient(true);
   }, []);
@@ -101,11 +100,10 @@ export default function TravelMap() {
   useEffect(() => {
     if (!isClient || !mapRef.current || mapInstanceRef.current) return;
 
-    // 动态导入 Leaflet
     import('leaflet').then((L) => {
       import('leaflet/dist/leaflet.css');
 
-      // 修复图标
+      // 修复默认图标
       delete (L.Icon.Default.prototype as any)._getIconUrl;
       L.Icon.Default.mergeOptions({
         iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
@@ -116,11 +114,17 @@ export default function TravelMap() {
       const map = L.map(mapRef.current!, {
         center: [34.8, 135.5],
         zoom: 9,
-        scrollWheelZoom: true
+        scrollWheelZoom: true,
+        zoomControl: false,
       });
 
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap'
+      // 添加缩放控件到右下角
+      L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+      // 使用 Esri World Street Map 真彩色地图瓦片
+      L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; Esri',
+        maxZoom: 19,
       }).addTo(map);
 
       mapInstanceRef.current = map;
@@ -142,12 +146,29 @@ export default function TravelMap() {
     markersRef.current = [];
     polylinesRef.current = [];
 
-    // 自定义图标
-    const createIcon = (color: string) => new L.Icon({
-      iconUrl: `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${color}.png`,
-      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
-      iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41]
-    });
+    // 创建 SVG 标记图标
+    const createMarkerIcon = (color: string, day: number) => {
+      const svg = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="44" viewBox="0 0 36 44">
+          <defs>
+            <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity="0.4"/>
+            </filter>
+          </defs>
+          <path d="M18 0C8.06 0 0 8.06 0 18c0 12 18 26 18 26s18-14 18-26C36 8.06 27.94 0 18 0z"
+                fill="${color}"/>
+          <circle cx="18" cy="16" r="10" fill="white"/>
+          <text x="18" y="20" text-anchor="middle" font-size="10" font-weight="bold"
+                fill="${color}" font-family="system-ui,sans-serif">D${day}</text>
+        </svg>`;
+      return L.divIcon({
+        html: svg,
+        className: 'travel-marker',
+        iconSize: [36, 44],
+        iconAnchor: [18, 44],
+        popupAnchor: [0, -44],
+      });
+    };
 
     // 路线
     const days = selectedDay === 'all' ? [1,2,3,4,5,6,7,8] : [selectedDay];
@@ -155,7 +176,7 @@ export default function TravelMap() {
       const dayLocs = allLocations.filter(l => l.day === day);
       if (dayLocs.length > 1) {
         const line = L.polyline(dayLocs.map(l => [l.lat, l.lng]), {
-          color: dayColors[day], weight: 3, opacity: 0.7
+          color: dayColors[day], weight: 3, opacity: 0.85, dashArray: '6, 4'
         }).addTo(map);
         polylinesRef.current.push(line);
       }
@@ -164,22 +185,23 @@ export default function TravelMap() {
     // 标记
     filteredLocations.forEach(loc => {
       const config = typeConfig[loc.type] || typeConfig.temple;
-      const marker = L.marker([loc.lat, loc.lng], { icon: createIcon(config.color) })
+      const icon = createMarkerIcon(config.color, loc.day);
+      const marker = L.marker([loc.lat, loc.lng], { icon })
         .addTo(map)
         .bindPopup(`
-          <div style="min-width: 180px;">
-            <div style="font-size: 14px; font-weight: bold; color: ${dayColors[loc.day]};">
+          <div style="min-width: 180px; font-family: system-ui, sans-serif;">
+            <div style="font-size: 13px; font-weight: bold; color: ${dayColors[loc.day]}; margin-bottom: 4px;">
               Day ${loc.day} · ${config.emoji}
             </div>
-            <div style="font-size: 15px; font-weight: bold;">${loc.name}</div>
+            <div style="font-size: 15px; font-weight: bold; color: #1a1a1a;">${loc.name}</div>
             <div style="font-size: 12px; color: #666;">${loc.nameJp}</div>
-            <div style="font-size: 13px; margin-top: 4px;">${loc.desc}</div>
+            <div style="font-size: 13px; color: #444; margin-top: 4px;">${loc.desc}</div>
             <a href="https://www.google.com/maps/search/?api=1&query=${loc.lat},${loc.lng}"
-               target="_blank" style="font-size: 12px; color: #3498db;">
-              📍 Google Maps
+               target="_blank" style="display: inline-block; margin-top: 8px; font-size: 12px; color: #3498db; text-decoration: none;">
+              📍 Google Maps →
             </a>
           </div>
-        `);
+        `, { minWidth: 200 });
       markersRef.current.push(marker);
     });
   }, [mapReady, selectedDay, selectedCity, filteredLocations]);
@@ -203,47 +225,64 @@ export default function TravelMap() {
   };
 
   if (!isClient) {
-    return <div style={{ height: '500px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--color-surface)', borderRadius: '8px' }}>🗺️ 地图加载中...</div>;
+    return (
+      <div style={{
+        height: '400px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        backgroundColor: '#f0f0f0', borderRadius: '8px', color: '#666',
+        fontSize: '14px', flexDirection: 'column', gap: '8px', border: '1px solid var(--color-border)'
+      }}>
+        <span style={{ fontSize: '32px' }}>🗺️</span>
+        <span>地图加载中...</span>
+      </div>
+    );
   }
 
   return (
     <div className="travel-map-container">
       {/* 控制面板 */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '16px', padding: '12px', backgroundColor: 'var(--color-surface)', borderRadius: '8px', border: '1px solid var(--color-border)' }}>
+      <div style={{
+        display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '12px',
+        padding: '10px 12px', backgroundColor: 'var(--color-surface)', borderRadius: '10px',
+        border: '1px solid var(--color-border)', alignItems: 'center'
+      }}>
         <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', alignItems: 'center' }}>
-          <span style={{ fontSize: '14px' }}>📍 城市：</span>
+          <span style={{ fontSize: '12px', color: 'var(--color-muted)' }}>📍</span>
           {['all', 'osaka', 'kyoto', 'nara', 'kobe'].map(city => (
             <button key={city} onClick={() => flyToCity(city)} style={{
-              padding: '4px 12px', borderRadius: '16px',
+              padding: '4px 10px', borderRadius: '12px', minHeight: '32px',
               border: selectedCity === city ? '2px solid var(--color-primary)' : '1px solid var(--color-border)',
               backgroundColor: selectedCity === city ? 'var(--color-primary)' : 'transparent',
-              color: selectedCity === city ? 'white' : 'var(--color-text)', cursor: 'pointer', fontSize: '13px'
+              color: selectedCity === city ? 'var(--color-bg)' : 'var(--color-secondary)', cursor: 'pointer', fontSize: '12px', transition: 'all 0.2s'
             }}>
               {city === 'all' ? '全部' : city === 'osaka' ? '大阪' : city === 'kyoto' ? '京都' : city === 'nara' ? '奈良' : '神户'}
             </button>
           ))}
         </div>
         <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', alignItems: 'center' }}>
-          <span style={{ fontSize: '14px' }}>📅 日期：</span>
+          <span style={{ fontSize: '12px', color: 'var(--color-muted)' }}>📅</span>
           <button onClick={() => setSelectedDay('all')} style={{
-            padding: '4px 12px', borderRadius: '16px',
+            padding: '4px 10px', borderRadius: '12px', minHeight: '32px',
             border: selectedDay === 'all' ? '2px solid var(--color-primary)' : '1px solid var(--color-border)',
             backgroundColor: selectedDay === 'all' ? 'var(--color-primary)' : 'transparent',
-            color: selectedDay === 'all' ? 'white' : 'var(--color-text)', cursor: 'pointer', fontSize: '13px'
+            color: selectedDay === 'all' ? 'var(--color-bg)' : 'var(--color-secondary)', cursor: 'pointer', fontSize: '12px'
           }}>全部</button>
           {[1,2,3,4,5,6,7,8].map(day => (
             <button key={day} onClick={() => setSelectedDay(day)} style={{
-              padding: '4px 10px', borderRadius: '16px',
+              padding: '4px 8px', borderRadius: '10px', minHeight: '32px',
               border: selectedDay === day ? 'none' : '1px solid var(--color-border)',
               backgroundColor: selectedDay === day ? dayColors[day] : 'transparent',
-              color: selectedDay === day ? 'white' : 'var(--color-text)', cursor: 'pointer', fontSize: '13px', fontWeight: selectedDay === day ? 'bold' : 'normal'
+              color: selectedDay === day ? 'white' : 'var(--color-secondary)', cursor: 'pointer', fontSize: '12px',
+              fontWeight: selectedDay === day ? 'bold' : 'normal', transition: 'all 0.2s'
             }}>D{day}</button>
           ))}
         </div>
       </div>
 
       {/* 图例 */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginBottom: '12px', padding: '8px 12px', backgroundColor: 'var(--color-surface)', borderRadius: '8px', fontSize: '13px' }}>
+      <div style={{
+        display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '12px',
+        padding: '8px 12px', backgroundColor: 'var(--color-surface)', borderRadius: '8px', fontSize: '12px', color: 'var(--color-secondary)'
+      }}>
         {Object.entries(typeConfig).map(([type, config]) => (
           <span key={type} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
             <span>{config.emoji}</span><span>{config.label}</span>
@@ -252,29 +291,52 @@ export default function TravelMap() {
       </div>
 
       {/* 地图 */}
-      <div ref={mapRef} style={{ height: '500px', borderRadius: '8px', border: '1px solid var(--color-border)' }} />
+      <div ref={mapRef} style={{ height: '400px', borderRadius: '10px', border: '1px solid var(--color-border)', overflow: 'hidden' }} />
 
       {/* 景点列表 */}
-      <div style={{ marginTop: '16px' }}>
-        <h4 style={{ marginBottom: '12px' }}>📍 景点列表 ({filteredLocations.length} 个)</h4>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '8px' }}>
+      <div style={{ marginTop: '12px' }}>
+        <h4 style={{ marginBottom: '10px', fontSize: '14px', color: 'var(--color-secondary)' }}>
+          📍 景点列表 ({filteredLocations.length} 个)
+        </h4>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '6px' }}>
           {filteredLocations.map(loc => {
             const config = typeConfig[loc.type] || typeConfig.temple;
             return (
               <div key={loc.id} onClick={() => flyToLocation(loc)} style={{
-                padding: '8px 12px', cursor: 'pointer', fontSize: '13px',
-                backgroundColor: selectedLocation?.id === loc.id ? 'var(--color-primary-light)' : 'var(--color-surface)',
+                padding: '8px 10px', cursor: 'pointer', fontSize: '12px',
+                backgroundColor: selectedLocation?.id === loc.id ? 'var(--color-bg)' : 'var(--color-surface)',
                 border: `1px solid ${selectedLocation?.id === loc.id ? dayColors[loc.day] : 'var(--color-border)'}`,
-                borderRadius: '6px'
+                borderRadius: '6px', transition: 'all 0.15s', minHeight: '40px', display: 'flex',
+                alignItems: 'center'
               }}>
-                <span style={{ color: dayColors[loc.day], fontWeight: 'bold', marginRight: '6px' }}>D{loc.day}</span>
-                <span>{config.emoji}</span>
-                <span style={{ marginLeft: '4px' }}>{loc.name}</span>
+                <span style={{ color: dayColors[loc.day], fontWeight: 'bold', marginRight: '4px', flexShrink: 0 }}>D{loc.day}</span>
+                <span style={{ marginRight: '4px', flexShrink: 0 }}>{config.emoji}</span>
+                <span style={{ color: 'var(--color-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{loc.name}</span>
               </div>
             );
           })}
         </div>
       </div>
+
+      <style>{`
+        .travel-marker {
+          background: none !important;
+          border: none !important;
+        }
+        .travel-marker svg {
+          display: block;
+        }
+        .leaflet-popup-content-wrapper {
+          border-radius: 10px !important;
+          box-shadow: 0 4px 20px rgba(0,0,0,0.15) !important;
+        }
+        .leaflet-popup-content {
+          margin: 12px 14px !important;
+        }
+        .leaflet-container {
+          font-family: system-ui, sans-serif;
+        }
+      `}</style>
     </div>
   );
 }
