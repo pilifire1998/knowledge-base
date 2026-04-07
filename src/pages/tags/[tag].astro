@@ -1,0 +1,35 @@
+---
+import ListLayout from '../../layouts/ListLayout.astro';
+import ArticleCard from '../../components/ArticleCard.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const articles = await getCollection('articles');
+  const tags = [...new Set(articles.flatMap((a) => a.data.tags))];
+  return tags.map((tag) => ({ params: { tag }, props: { tag } }));
+}
+
+const { tag } = Astro.props;
+const allArticles = await getCollection('articles');
+const articles = allArticles
+  .filter((a) => !a.data.draft && a.data.tags.includes(tag))
+  .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
+---
+
+<ListLayout title={`标签: ${tag}`} description={`${tag} 相关的所有文章`}>
+  <div class="grid gap-6">
+    {articles.map((article) => (
+      <ArticleCard
+        title={article.data.title}
+        description={article.data.description}
+        pubDate={article.data.pubDate}
+        tags={article.data.tags}
+        slug={article.slug}
+      />
+    ))}
+
+    {articles.length === 0 && (
+      <p class="text-muted">该标签下暂无文章</p>
+    )}
+  </div>
+</ListLayout>

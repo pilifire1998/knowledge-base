@@ -1,0 +1,19 @@
+---
+const currentYear = new Date().getFullYear();
+---
+
+<footer class="border-t border-[var(--color-border)] py-8 mt-auto">
+  <div class="container flex flex-col sm:flex-row items-center justify-between gap-4">
+    <p class="text-sm text-muted">
+      © {currentYear} DEV.JOURNAL. All rights reserved.
+    </p>
+    <nav class="flex items-center gap-6">
+      <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="text-sm text-muted hover:text-primary transition-colors">
+        GitHub
+      </a>
+      <a href="/rss.xml" class="text-sm text-muted hover:text-primary transition-colors">
+        RSS
+      </a>
+    </nav>
+  </div>
+</footer>

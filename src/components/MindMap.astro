@@ -1,0 +1,101 @@
+---
+// Simple MindMap component for articles
+interface Node {
+  text: string;
+  children?: Node[];
+}
+
+interface Props {
+  data: Node;
+  title?: string;
+}
+
+const { data, title } = Astro.props;
+
+function renderNode(node: Node, depth: number = 0): string {
+  const indent = depth * 24;
+  const hasChildren = node.children && node.children.length > 0;
+
+  let html = `
+    <div class="mindmap-node" style="margin-left: ${indent}px">
+      <div class="mindmap-item ${hasChildren ? 'has-children' : ''}">
+        ${hasChildren ? '<span class="mindmap-arrow">▶</span>' : '<span class="mindmap-dot"></span>'}
+        <span class="mindmap-text">${node.text}</span>
+      </div>
+  `;
+
+  if (node.children) {
+    html += '<div class="mindmap-children">';
+    for (const child of node.children) {
+      html += renderNode(child, depth + 1);
+    }
+    html += '</div>';
+  }
+
+  html += '</div>';
+  return html;
+}
+---
+
+<div class="mindmap-container my-8">
+  {title && (
+    <div class="text-caption uppercase tracking-wider text-muted mb-4 font-semibold">{title}</div>
+  )}
+  <div class="mindmap bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg p-6">
+    <Fragment set:html={renderNode(data)} />
+  </div>
+</div>
+
+<style>
+  .mindmap-node {
+    position: relative;
+  }
+
+  .mindmap-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    margin: 2px 0;
+    border-radius: 4px;
+    transition: background 0.15s;
+  }
+
+  .mindmap-item:hover {
+    background: var(--color-bg);
+  }
+
+  .mindmap-dot {
+    width: 6px;
+    height: 6px;
+    background: var(--color-primary);
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .mindmap-arrow {
+    font-size: 10px;
+    color: var(--color-muted);
+    flex-shrink: 0;
+    transition: transform 0.15s;
+  }
+
+  .mindmap-text {
+    color: var(--color-primary);
+    font-size: 0.95rem;
+  }
+
+  .mindmap-children {
+    border-left: 2px solid var(--color-border);
+    margin-left: 10px;
+    padding-left: 0;
+  }
+
+  .mindmap-item.has-children {
+    font-weight: 600;
+  }
+
+  .mindmap-item.has-children .mindmap-text {
+    color: var(--color-primary);
+  }
+</style>

@@ -1,0 +1,47 @@
+---
+// Mermaid diagram component - renders diagrams at build time
+import mermaid from 'mermaid';
+
+interface Props {
+  code: string;
+  title?: string;
+}
+
+const { code, title } = Astro.props;
+
+// Initialize mermaid
+mermaid.initialize({
+  startOnLoad: false,
+  theme: 'default',
+  fontFamily: 'system-ui, sans-serif',
+});
+
+// Render diagram
+const { svg } = await mermaid.render(`mermaid-${Date.now()}-${Math.random().toString(36).slice(2)}`, code);
+---
+
+<div class="mermaid-container my-8">
+  {title && (
+    <div class="text-sm font-semibold text-secondary mb-3">{title}</div>
+  )}
+  <div
+    class="mermaid-diagram bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg p-6 overflow-x-auto"
+    set:html={svg}
+  />
+</div>
+
+<style>
+  .mermaid-container :global(.mermaid-diagram svg) {
+    max-width: 100%;
+    height: auto;
+  }
+
+  [data-theme="dark"] .mermaid-container :global(.mermaid-diagram) {
+    filter: invert(1) hue-rotate(180deg);
+  }
+
+  [data-theme="dark"] .mermaid-container :global(.mermaid-diagram img),
+  [data-theme="dark"] .mermaid-container :global(.mermaid-diagram video) {
+    filter: invert(1) hue-rotate(180deg);
+  }
+</style>

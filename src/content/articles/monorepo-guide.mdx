@@ -1,0 +1,369 @@
+---
+title: "Monorepo 完全指南：从入门到精通"
+description: "深入理解 Monorepo 架构设计，掌握 pnpm workspace、Turborepo 等工具的使用"
+pubDate: 2026-04-06
+tags: ["monorepo", "工程化", "pnpm", "turborepo", "架构"]
+category: "工程化"
+series: "现代前端工程化"
+seriesOrder: 1
+featured: true
+---
+
+import MindMap from '../../components/MindMap.astro';
+
+## 什么是 Monorepo？
+
+Monorepo（单一仓库）是一种将多个项目代码存储在同一个版本控制仓库中的开发策略。与 Multirepo（多仓库）相对，Monorepo 让你在统一的仓库中管理多个相互关联或独立的项目。
+
+<MindMap
+  title="本文大纲"
+  data={{
+    text: "Monorepo 完全指南",
+    children: [
+      {
+        text: "入门篇",
+        children: [
+          { text: "概念与对比" },
+          { text: "项目结构" },
+          { text: "初始化配置" }
+        ]
+      },
+      {
+        text: "使用篇",
+        children: [
+          { text: "包之间引用" },
+          { text: "Turborepo 构建" },
+          { text: "TypeScript 配置" }
+        ]
+      },
+      {
+        text: "精通篇",
+        children: [
+          { text: "版本管理" },
+          { text: "CI/CD 集成" },
+          { text: "高级技巧" }
+        ]
+      }
+    ]
+  }}
+/>
+
+### Monorepo vs Multirepo
+
+| 特性 | Monorepo | Multirepo |
+|------|----------|-----------|
+| 代码可见性 | 所有项目可见 | 项目间隔离 |
+| 依赖管理 | 统一管理 | 各自管理 |
+| 代码复用 | 极其方便 | 需要发布包 |
+| 构建效率 | 可增量构建 | 独立构建 |
+| 团队协作 | 统一规范 | 各自为政 |
+| 仓库体积 | 较大 | 分散 |
+
+### 适用场景
+
+- **组件库**：多个 UI 组件在统一仓库中开发
+- **工具链**：CLI、配置、插件等工具集合
+- **微前端**：多个子应用共享基础库
+- **全栈项目**：前端、后端、共享类型定义
+
+## 快速入门
+
+### 项目结构
+
+一个典型的 Monorepo 项目结构：
+
+```
+my-monorepo/
+├── packages/
+│   ├── core/                 # 核心库
+│   ├── ui/                   # UI 组件库
+│   └── utils/                # 工具函数
+├── apps/
+│   ├── web/                  # Web 应用
+│   └── admin/                # 管理后台
+├── pnpm-workspace.yaml       # 工作区配置
+├── turbo.json                # Turborepo 配置
+└── package.json              # 根配置
+```
+
+<MindMap
+  title="目录结构解析"
+  data={{
+    text: "my-monorepo/",
+    children: [
+      {
+        text: "packages/ (可复用库)",
+        children: [
+          { text: "core - 核心业务逻辑" },
+          { text: "ui - UI 组件库" },
+          { text: "utils - 工具函数" },
+          { text: "config - 共享配置" }
+        ]
+      },
+      {
+        text: "apps/ (可部署应用)",
+        children: [
+          { text: "web - 官网/用户端" },
+          { text: "admin - 管理后台" },
+          { text: "docs - 文档站" }
+        ]
+      },
+      {
+        text: "配置文件",
+        children: [
+          { text: "pnpm-workspace.yaml" },
+          { text: "turbo.json" },
+          { text: "tsconfig.base.json" }
+        ]
+      }
+    ]
+  }}
+/>
+
+### 初始化项目
+
+```bash
+# 创建项目目录
+mkdir my-monorepo && cd my-monorepo
+
+# 初始化 git
+git init
+
+# 初始化 package.json
+pnpm init
+
+# 创建工作区配置
+cat > pnpm-workspace.yaml << 'EOF'
+packages:
+  - 'packages/*'
+  - 'apps/*'
+EOF
+
+# 创建目录结构
+mkdir -p packages/{core,ui,utils} apps/{web,admin}
+```
+
+### 配置工作区
+
+**pnpm-workspace.yaml**
+
+```yaml
+packages:
+  - 'packages/*'   # 所有 packages 目录下的包
+  - 'apps/*'       # 所有 apps 目录下的应用
+  - '!**/test/**'  # 排除测试目录
+```
+
+**根 package.json**
+
+```json
+{
+  "name": "my-monorepo",
+  "private": true,
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "test": "turbo test"
+  },
+  "devDependencies": {
+    "turbo": "^2.0.0",
+    "typescript": "^5.0.0"
+  },
+  "packageManager": "pnpm@9.0.0"
+}
+```
+
+## 包之间引用
+
+### 定义包
+
+**packages/core/package.json**
+
+```json
+{
+  "name": "@my-org/core",
+  "version": "1.0.0",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts"
+  }
+}
+```
+
+### 引用内部包
+
+**packages/ui/package.json**
+
+```json
+{
+  "name": "@my-org/ui",
+  "dependencies": {
+    "@my-org/core": "workspace:*",
+    "@my-org/utils": "workspace:*"
+  }
+}
+```
+
+**workspace 协议语法**
+
+```json
+{
+  "dependencies": {
+    "@my-org/core": "workspace:*",      // 最新版本
+    "@my-org/utils": "workspace:^1.0.0" // 指定范围
+  }
+}
+```
+
+## Turborepo 构建
+
+Turborepo 通过缓存和并行执行大幅提升构建速度。
+
+<MindMap
+  title="Turborepo 任务流程"
+  data={{
+    text: "turbo build",
+    children: [
+      {
+        text: "解析依赖图",
+        children: [
+          { text: "读取 turbo.json" },
+          { text: "分析包依赖关系" }
+        ]
+      },
+      {
+        text: "检查缓存",
+        children: [
+          { text: "命中 → 跳过" },
+          { text: "未命中 → 执行" }
+        ]
+      },
+      {
+        text: "并行执行",
+        children: [
+          { text: "按拓扑排序" },
+          { text: "无依赖并行" }
+        ]
+      }
+    ]
+  }}
+/>
+
+**turbo.json**
+
+```json
+{
+  "tasks": {
+    "build": {
+      "outputs": ["dist/**"],
+      "dependsOn": ["^build"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "test": {
+      "dependsOn": ["build"]
+    }
+  }
+}
+```
+
+### 常用命令
+
+```bash
+turbo build                      # 构建所有
+turbo build --filter=@my-org/ui  # 构建指定包
+turbo build --filter=...[HEAD^1] # 只构建变更
+turbo build --force              # 强制重建
+```
+
+## 版本管理
+
+### Changesets 工作流
+
+```bash
+# 1. 安装
+pnpm add -D @changesets/cli -w
+pnpm changeset init
+
+# 2. 创建变更
+pnpm changeset
+# → 选择包、版本类型、描述
+
+# 3. 升级版本
+pnpm changeset version
+
+# 4. 发布
+pnpm changeset publish
+```
+
+<MindMap
+  title="Changesets 发布流程"
+  data={{
+    text: "发布流程",
+    children: [
+      { text: "开发功能/修复 Bug" },
+      { text: "pnpm changeset 记录变更" },
+      { text: "CI 自动创建 PR" },
+      { text: "合并后自动发布" }
+    ]
+  }}
+/>
+
+## 最佳实践总结
+
+<MindMap
+  title="Monorepo 最佳实践"
+  data={{
+    text: "最佳实践",
+    children: [
+      {
+        text: "目录规范",
+        children: [
+          { text: "apps/ 放可部署应用" },
+          { text: "packages/ 放可复用库" },
+          { text: "configs/ 放共享配置" }
+        ]
+      },
+      {
+        text: "依赖策略",
+        children: [
+          { text: "根目录放开发工具" },
+          { text: "包级放运行时依赖" },
+          { text: "定期 pnpm update" }
+        ]
+      },
+      {
+        text: "CI/CD 优化",
+        children: [
+          { text: "启用远程缓存" },
+          { text: "只构建变更包" },
+          { text: "并行独立任务" }
+        ]
+      }
+    ]
+  }}
+/>
+
+## 工具选型
+
+| 需求 | 推荐工具 |
+|------|----------|
+| 包管理 | pnpm workspace |
+| 构建加速 | Turborepo / Nx |
+| 版本发布 | Changesets |
+| 类型检查 | TypeScript Project References |
+| 代码规范 | ESLint 共享配置 |
+
+选择 Monorepo 前，评估团队规模和项目复杂度。小型独立项目无需 Monorepo，大型关联项目则能显著提升效率。

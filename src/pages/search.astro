@@ -1,0 +1,61 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="搜索" description="搜索文章">
+  <div class="container py-12">
+    <div id="search" class="max-w-2xl mx-auto">
+      <h1 class="text-h1 text-primary mb-8">搜索</h1>
+      <div id="pagefind-search">
+        <p class="text-muted">搜索功能将在部署后可用。请使用 <kbd class="px-1.5 py-0.5 bg-[var(--color-surface)] border border-[var(--color-border)] rounded text-sm">⌘K</kbd> 快捷键进行搜索。</p>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<script is:inline>
+  async function initPagefind() {
+    const searchContainer = document.getElementById('pagefind-search');
+    if (!searchContainer) return;
+
+    try {
+      const pagefind = await import('/pagefind/pagefind.js');
+      await pagefind.init();
+
+      searchContainer.innerHTML = '';
+
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.placeholder = '输入关键词搜索...';
+      input.className = 'w-full px-4 py-3 bg-[var(--color-surface)] border border-[var(--color-border)] text-primary placeholder:text-muted focus:outline-none focus:border-[var(--color-primary)] mb-8';
+
+      const resultsContainer = document.createElement('div');
+      resultsContainer.className = 'space-y-4';
+
+      input.addEventListener('input', async (e) => {
+        const query = e.target.value;
+        if (!query.trim()) {
+          resultsContainer.innerHTML = '';
+          return;
+        }
+
+        const search = await pagefind.search(query);
+        const results = await Promise.all(search.results.slice(0, 10).map(r => r.data()));
+
+        resultsContainer.innerHTML = results.map(r => `
+          <a href="${r.url}" class="block p-4 bg-[var(--color-surface)] border border-[var(--color-border)] hover:border-[var(--color-primary)] transition-colors">
+            <div class="font-semibold text-primary mb-2">${r.meta.title}</div>
+            <div class="text-sm text-secondary line-clamp-2">${r.excerpt}</div>
+          </a>
+        `).join('');
+      });
+
+      searchContainer.appendChild(input);
+      searchContainer.appendChild(resultsContainer);
+    } catch (e) {
+      // Pagefind not available, keep placeholder
+    }
+  }
+
+  initPagefind();
+</script>

@@ -1,0 +1,51 @@
+---
+import ListLayout from '../../layouts/ListLayout.astro';
+import ArticleCard from '../../components/ArticleCard.astro';
+import TagBadge from '../../components/TagBadge.astro';
+import { getCollection } from 'astro:content';
+
+const articles = await getCollection('articles');
+const sortedArticles = articles
+  .filter((a) => !a.data.draft)
+  .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
+
+const tagCounts: Record<string, number> = {};
+articles.forEach((article) => {
+  article.data.tags.forEach((tag) => {
+    tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+  });
+});
+
+const allTags = Object.entries(tagCounts).sort((a, b) => b[1] - a[1]);
+---
+
+<ListLayout title="文章" description="所有技术文章和学习笔记">
+  <div class="lg:grid lg:grid-cols-[1fr_240px] lg:gap-12">
+    <div class="grid gap-6">
+      {sortedArticles.map((article) => (
+        <ArticleCard
+          title={article.data.title}
+          description={article.data.description}
+          pubDate={article.data.pubDate}
+          tags={article.data.tags}
+          slug={article.slug}
+        />
+      ))}
+
+      {sortedArticles.length === 0 && (
+        <div class="text-center py-12 text-muted">
+          暂无文章
+        </div>
+      )}
+    </div>
+
+    <aside class="mt-12 lg:mt-0">
+      <h3 class="text-caption uppercase tracking-wider text-muted mb-4">标签</h3>
+      <div class="flex flex-wrap gap-2">
+        {allTags.map(([tag, count]) => (
+          <TagBadge tag={tag} count={count} />
+        ))}
+      </div>
+    </aside>
+  </div>
+</ListLayout>

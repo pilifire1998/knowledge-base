@@ -1,0 +1,89 @@
+---
+import SearchModal from './SearchModal';
+
+const navLinks = [
+  { href: '/articles', label: '文章' },
+  { href: '/tags', label: '标签' },
+  { href: '/about', label: '关于' },
+];
+---
+
+<header class="sticky top-0 z-50 bg-[var(--color-bg)] border-b border-[var(--color-border)]">
+  <nav class="container h-16 flex items-center justify-between" aria-label="主导航">
+    <a href="/" class="text-xl font-black tracking-tight text-primary hover:opacity-70 transition-opacity">
+      DEV.JOURNAL
+    </a>
+
+    <div class="flex items-center gap-6">
+      {navLinks.map((link) => (
+        <a
+          href={link.href}
+          class="text-sm font-semibold text-secondary hover:text-primary transition-colors"
+        >
+          {link.label}
+        </a>
+      ))}
+
+      <button
+        id="search-btn"
+        type="button"
+        class="flex items-center gap-2 px-3 py-1.5 text-sm text-muted border border-[var(--color-border)] rounded hover:border-primary hover:text-primary transition-colors"
+        aria-label="搜索"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+        <span class="hidden sm:inline">搜索...</span>
+        <kbd class="hidden sm:inline text-xs px-1.5 py-0.5 bg-[var(--color-surface)] rounded">⌘K</kbd>
+      </button>
+
+      <button
+        id="theme-toggle"
+        type="button"
+        class="p-2 text-secondary hover:text-primary transition-colors"
+        aria-label="切换主题"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 dark-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+        </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 light-icon hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+        </svg>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<div id="search-modal-container" class="contents">
+  <SearchModal client:load />
+</div>
+
+<script>
+  const themeToggle = document.getElementById('theme-toggle');
+  const darkIcon = document.querySelector('.dark-icon');
+  const lightIcon = document.querySelector('.light-icon');
+
+  function getTheme() {
+    return localStorage.getItem('theme') ||
+      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  }
+
+  function setTheme(theme: string) {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+    if (theme === 'dark') {
+      darkIcon?.classList.add('hidden');
+      lightIcon?.classList.remove('hidden');
+    } else {
+      darkIcon?.classList.remove('hidden');
+      lightIcon?.classList.add('hidden');
+    }
+  }
+
+  setTheme(getTheme());
+
+  themeToggle?.addEventListener('click', () => {
+    const current = document.documentElement.getAttribute('data-theme');
+    setTheme(current === 'dark' ? 'light' : 'dark');
+  });
+</script>
