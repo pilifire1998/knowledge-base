@@ -1,0 +1,927 @@
+---
+title: "React Native 入门：从零构建第一个跨平台应用"
+description: "系统学习 React Native 基础，掌握环境配置、核心组件、样式系统与布局，构建你的第一个跨平台移动应用"
+pubDate: 2026-04-07
+tags: ["react-native", "入门", "移动开发", "跨平台"]
+category: "移动开发"
+series: "React Native 全栈指南"
+seriesOrder: 1
+featured: true
+---
+
+import MindMap from '../../components/MindMap.astro';
+
+## 为什么选择 React Native？
+
+React Native 让你使用 JavaScript 和 React 构建真正的原生移动应用，而非 Web 应用壳。
+
+<MindMap
+  title="React Native 核心优势"
+  data={{
+    text: "React Native",
+    children: [
+      {
+        text: "跨平台",
+        children: [
+          { text: "iOS 与 Android 共享代码" },
+          { text: "一套技术栈" }
+        ]
+      },
+      {
+        text: "原生性能",
+        children: [
+          { text: "原生组件渲染" },
+          { text: "Bridge 通信机制" }
+        ]
+      },
+      {
+        text: "开发效率",
+        children: [
+          { text: "热重载 (Fast Refresh)" },
+          { text: "Chrome DevTools 调试" }
+        ]
+      },
+      {
+        text: "生态成熟",
+        children: [
+          { text: "npm 海量库支持" },
+          { text: "社区活跃" }
+        ]
+      }
+    ]
+  }}
+/>
+
+### 与其他方案对比
+
+| 方案 | 渲染方式 | 性能 | 学习曲线 | 原生能力 |
+|------|----------|------|----------|----------|
+| React Native | 原生组件 | 接近原生 | 中等 | 完全访问 |
+| Flutter | Skia 绘制 | 接近原生 | 较陡 | 需要插件 |
+| WebView | WebView | 较差 | 低 | 有限 |
+| 原生开发 | 原生组件 | 最佳 | 高 | 完全访问 |
+
+## 环境搭建
+
+### 必备工具
+
+```bash
+# 1. 安装 Node.js (推荐 LTS 版本)
+# 使用 nvm 管理 Node 版本
+nvm install --lts
+nvm use --lts
+
+# 2. 安装 Watchman (macOS 推荐)
+brew install watchman
+
+# 3. 安装 React Native CLI
+npm install -g react-native-cli
+
+# 4. iOS 开发环境 (macOS 专用)
+# 安装 Xcode 从 App Store
+# 安装 Xcode Command Line Tools
+xcode-select --install
+
+# 5. Android 开发环境
+# 安装 Android Studio
+# 配置 ANDROID_HOME 环境变量
+```
+
+### 配置 Android 环境
+
+**~/.zshrc 或 ~/.bash_profile**
+
+```bash
+export ANDROID_HOME=$HOME/Library/Android/sdk
+export PATH=$PATH:$ANDROID_HOME/emulator
+export PATH=$PATH:$ANDROID_HOME/platform-tools
+export PATH=$PATH:$ANDROID_HOME/tools
+export PATH=$PATH:$ANDROID_HOME/tools/bin
+```
+
+### 创建项目
+
+```bash
+# 创建新项目 (推荐使用模板)
+npx react-native@latest init MyApp --template typescript
+
+# 或使用社区模板
+npx react-native@latest init MyApp --template @react-native-community/template-typescript
+
+# 进入项目目录
+cd MyApp
+
+# iOS: 安装 CocoaPods 依赖 (macOS)
+cd ios && pod install && cd ..
+
+# 启动开发
+# iOS
+npx react-native run-ios
+
+# Android
+npx react-native run-android
+```
+
+### 项目结构
+
+```
+MyApp/
+├── __tests__/              # 测试文件
+├── android/                # Android 原生代码
+│   ├── app/
+│   ├── build.gradle
+│   └── ...
+├── ios/                    # iOS 原生代码
+│   ├── MyApp/
+│   ├── MyApp.xcworkspace
+│   └── Podfile
+├── src/                    # 源代码 (推荐)
+│   ├── components/
+│   ├── screens/
+│   ├── hooks/
+│   ├── utils/
+│   └── App.tsx
+├── index.js                # 入口文件
+├── package.json
+├── tsconfig.json
+└── react-native.config.js
+```
+
+## 核心组件
+
+React Native 提供了一组映射到原生组件的基础组件。
+
+### View 与 Text
+
+```tsx
+import { View, Text, StyleSheet } from 'react-native';
+
+// View ≈ div，是最基础的容器
+// Text ≈ span/p，所有文本必须包裹在 Text 中
+
+const BasicComponent = () => {
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Hello React Native</Text>
+      <Text style={styles.subtitle}>
+        构建跨平台原生应用
+      </Text>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#000',
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#666',
+    marginTop: 8,
+  },
+});
+
+export default BasicComponent;
+```
+
+### Image 组件
+
+```tsx
+import { Image, View } from 'react-native';
+
+const ImageExample = () => {
+  return (
+    <View>
+      {/* 本地图片 */}
+      <Image
+        source={require('./logo.png')}
+        style={{ width: 100, height: 100 }}
+      />
+
+      {/* 网络图片 - 必须指定尺寸 */}
+      <Image
+        source={{ uri: 'https://example.com/image.jpg' }}
+        style={{ width: 200, height: 150 }}
+      />
+
+      {/* Base64 图片 */}
+      <Image
+        source={{
+          uri: 'data:image/png;base64,iVBORw0KGgoAAAANS...'
+        }}
+        style={{ width: 50, height: 50 }}
+      />
+    </View>
+  );
+};
+```
+
+### ScrollView 与 FlatList
+
+```tsx
+import { ScrollView, FlatList, View, Text } from 'react-native';
+
+// ScrollView: 适合少量内容，一次性渲染所有子元素
+const ScrollExample = () => (
+  <ScrollView
+    showsVerticalScrollIndicator={false}
+    contentContainerStyle={{ padding: 16 }}
+  >
+    <Text>内容 1</Text>
+    <Text>内容 2</Text>
+    {/* ... 更多内容 */}
+  </ScrollView>
+);
+
+// FlatList: 适合长列表，虚拟滚动，按需渲染
+interface Item {
+  id: string;
+  title: string;
+}
+
+const ListExample = () => {
+  const data: Item[] = [
+    { id: '1', title: '项目 1' },
+    { id: '2', title: '项目 2' },
+    { id: '3', title: '项目 3' },
+    // ... 大量数据
+  ];
+
+  const renderItem = ({ item }: { item: Item }) => (
+    <View style={{ padding: 16, borderBottomWidth: 1 }}>
+      <Text>{item.title}</Text>
+    </View>
+  );
+
+  return (
+    <FlatList
+      data={data}
+      renderItem={renderItem}
+      keyExtractor={(item) => item.id}
+      // 性能优化配置
+      initialNumToRender={10}
+      maxToRenderPerBatch={10}
+      windowSize={5}
+      removeClippedSubviews={true}
+      // 下拉刷新
+      onRefresh={() => {}}
+      refreshing={false}
+      // 上拉加载更多
+      onEndReached={() => {}}
+      onEndReachedThreshold={0.5}
+    />
+  );
+};
+```
+
+### TextInput
+
+```tsx
+import { TextInput, View, StyleSheet } from 'react-native';
+import { useState } from 'react';
+
+const InputExample = () => {
+  const [value, setValue] = useState('');
+
+  return (
+    <View style={styles.container}>
+      <TextInput
+        style={styles.input}
+        value={value}
+        onChangeText={setValue}
+        placeholder="请输入内容"
+        placeholderTextColor="#999"
+        // 键盘类型
+        keyboardType="email-address"
+        // 自动修正
+        autoCorrect={false}
+        // 自动大写
+        autoCapitalize="none"
+        // 安全文本输入 (密码)
+        secureTextEntry={false}
+        // 多行输入
+        multiline={false}
+        numberOfLines={1}
+        // 返回键类型
+        returnKeyType="done"
+        // 提交事件
+        onSubmitEditing={() => console.log('提交')}
+      />
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    padding: 16,
+  },
+  input: {
+    height: 48,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    fontSize: 16,
+  },
+});
+```
+
+### TouchableOpacity 与触摸
+
+```tsx
+import {
+  TouchableOpacity,
+  TouchableHighlight,
+  TouchableWithoutFeedback,
+  Pressable,
+  Text,
+  View,
+  Alert,
+} from 'react-native';
+
+const TouchExample = () => {
+  return (
+    <View>
+      {/* TouchableOpacity: 点击时透明度变化 */}
+      <TouchableOpacity
+        onPress={() => Alert.alert('点击')}
+        activeOpacity={0.7}
+        style={{ padding: 16, backgroundColor: '#007AFF' }}
+      >
+        <Text style={{ color: '#fff' }}>TouchableOpacity</Text>
+      </TouchableOpacity>
+
+      {/* TouchableHighlight: 点击时背景色变化 */}
+      <TouchableHighlight
+        onPress={() => {}}
+        underlayColor="#0056b3"
+        style={{ padding: 16, backgroundColor: '#007AFF' }}
+      >
+        <Text style={{ color: '#fff' }}>TouchableHighlight</Text>
+      </TouchableHighlight>
+
+      {/* Pressable: 最新的触摸组件 (推荐) */}
+      <Pressable
+        onPress={() => {}}
+        onPressIn={() => console.log('按下')}
+        onPressOut={() => console.log('抬起')}
+        onLongPress={() => console.log('长按')}
+        delayLongPress={500}
+        style={({ pressed }) => ({
+          padding: 16,
+          backgroundColor: pressed ? '#0056b3' : '#007AFF',
+          opacity: pressed ? 0.8 : 1,
+        })}
+      >
+        <Text style={{ color: '#fff' }}>Pressable</Text>
+      </Pressable>
+    </View>
+  );
+};
+```
+
+## 样式系统
+
+React Native 使用 Flexbox 布局，但有一些差异。
+
+### Flexbox 布局
+
+```tsx
+import { View, Text, StyleSheet } from 'react-native';
+
+const FlexExample = () => {
+  return (
+    <View style={styles.container}>
+      {/* header */}
+      <View style={styles.header}>
+        <Text style={styles.headerText}>Header</Text>
+      </View>
+
+      {/* content */}
+      <View style={styles.content}>
+        <View style={styles.sidebar}>
+          <Text>Sidebar</Text>
+        </View>
+        <View style={styles.main}>
+          <Text>Main Content</Text>
+        </View>
+      </View>
+
+      {/* footer */}
+      <View style={styles.footer}>
+        <Text>Footer</Text>
+      </View>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,                    // 占满剩余空间
+    flexDirection: 'column',    // 主轴方向: row | column
+    justifyContent: 'space-between', // 主轴对齐
+    alignItems: 'stretch',      // 交叉轴对齐
+  },
+  header: {
+    height: 60,
+    backgroundColor: '#007AFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  headerText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  content: {
+    flex: 1,                    // 占据剩余空间
+    flexDirection: 'row',       // 水平排列
+  },
+  sidebar: {
+    width: 80,
+    backgroundColor: '#f5f5f5',
+    padding: 8,
+  },
+  main: {
+    flex: 1,                    // 占据剩余宽度
+    backgroundColor: '#fff',
+    padding: 16,
+  },
+  footer: {
+    height: 50,
+    backgroundColor: '#333',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});
+```
+
+### RN Flexbox 与 Web 的差异
+
+| 属性 | Web | React Native |
+|------|-----|--------------|
+| `display` | block, flex, grid, none | flex, none |
+| `flexDirection` | row (默认) | column (默认) |
+| 单位 | px, em, rem, % | 数字 (逻辑像素) |
+| `position` | static, relative, absolute, fixed, sticky | relative, absolute |
+| `zIndex` | 任意值 | 需要层级管理 |
+
+### StyleSheet API
+
+```tsx
+import { StyleSheet } from 'react-native';
+
+// 推荐使用 StyleSheet.create
+// 1. 性能优化 (ID 复用)
+// 2. 类型检查
+// 3. 代码组织清晰
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 16,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: '700' as const,
+    color: '#000',
+  },
+});
+
+// 动态样式
+const getDynamicStyle = (isActive: boolean) => ({
+  ...styles.container,
+  backgroundColor: isActive ? '#007AFF' : '#fff',
+});
+
+// 样式组合
+const combinedStyle = [
+  styles.container,
+  { marginTop: 8 },
+  isActive && styles.active,
+];
+```
+
+## 平台适配
+
+### Platform API
+
+```tsx
+import {
+  Platform,
+  StyleSheet,
+  View,
+  Text,
+} from 'react-native';
+
+const PlatformExample = () => {
+  return (
+    <View style={styles.container}>
+      <Text>
+        当前平台: {Platform.OS}
+      </Text>
+      <Text>
+        版本: {Platform.Version}
+      </Text>
+      {Platform.OS === 'ios' && (
+        <Text>iOS 专属内容</Text>
+      )}
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    // 平台特定样式
+    ...Platform.select({
+      ios: {
+        paddingTop: 50,  // iOS 状态栏
+      },
+      android: {
+        paddingTop: 24,  // Android 状态栏
+      },
+    }),
+  },
+  shadow: {
+    // iOS 阴影
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    // Android 阴影
+    elevation: 5,
+  },
+});
+```
+
+### 文件级平台区分
+
+```
+src/
+├── components/
+│   ├── Button.tsx           # 共享代码
+│   ├── Button.ios.tsx       # iOS 专用
+│   └── Button.android.tsx   # Android 专用
+```
+
+```tsx
+// 导入时无需指定平台后缀
+import Button from './Button';
+// React Native 会根据运行平台自动选择对应文件
+```
+
+## Safe Area 处理
+
+```tsx
+import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
+
+const App = () => {
+  return (
+    <SafeAreaProvider>
+      <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }} edges={['top']}>
+        {/* 内容会自动避开刘海和底部指示器 */}
+      </SafeAreaView>
+    </SafeAreaProvider>
+  );
+};
+
+// 或使用 hooks 获取 safe area insets
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+const MyComponent = () => {
+  const insets = useSafeAreaInsets();
+
+  return (
+    <View style={{
+      paddingTop: insets.top,
+      paddingBottom: insets.bottom,
+      paddingLeft: insets.left,
+      paddingRight: insets.right,
+    }}>
+      {/* 内容 */}
+    </View>
+  );
+};
+```
+
+## 第一个完整示例
+
+```tsx
+// src/App.tsx
+import React, { useState } from 'react';
+import {
+  SafeAreaView,
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  FlatList,
+  StyleSheet,
+  StatusBar,
+  Alert,
+} from 'react-native';
+
+interface Todo {
+  id: string;
+  text: string;
+  completed: boolean;
+}
+
+const App: React.FC = () => {
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [inputValue, setInputValue] = useState('');
+
+  const addTodo = () => {
+    if (!inputValue.trim()) return;
+
+    const newTodo: Todo = {
+      id: Date.now().toString(),
+      text: inputValue.trim(),
+      completed: false,
+    };
+
+    setTodos((prev) => [...prev, newTodo]);
+    setInputValue('');
+  };
+
+  const toggleTodo = (id: string) => {
+    setTodos((prev) =>
+      prev.map((todo) =>
+        todo.id === id ? { ...todo, completed: !todo.completed } : todo
+      )
+    );
+  };
+
+  const deleteTodo = (id: string) => {
+    Alert.alert('确认删除', '确定要删除这个任务吗？', [
+      { text: '取消', style: 'cancel' },
+      {
+        text: '删除',
+        style: 'destructive',
+        onPress: () => setTodos((prev) => prev.filter((t) => t.id !== id)),
+      },
+    ]);
+  };
+
+  const renderTodo = ({ item }: { item: Todo }) => (
+    <TouchableOpacity
+      style={[styles.todoItem, item.completed && styles.todoCompleted]}
+      onPress={() => toggleTodo(item.id)}
+      onLongPress={() => deleteTodo(item.id)}
+    >
+      <View style={styles.todoCheckbox}>
+        {item.completed && <View style={styles.todoCheckmark} />}
+      </View>
+      <Text
+        style={[styles.todoText, item.completed && styles.todoTextCompleted]}
+      >
+        {item.text}
+      </Text>
+    </TouchableOpacity>
+  );
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="dark-content" />
+
+      <View style={styles.header}>
+        <Text style={styles.title}>待办事项</Text>
+        <Text style={styles.subtitle}>
+          {todos.filter((t) => !t.completed).length} 个待完成
+        </Text>
+      </View>
+
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.input}
+          value={inputValue}
+          onChangeText={setInputValue}
+          placeholder="添加新任务..."
+          placeholderTextColor="#999"
+          returnKeyType="done"
+          onSubmitEditing={addTodo}
+        />
+        <TouchableOpacity style={styles.addButton} onPress={addTodo}>
+          <Text style={styles.addButtonText}>+</Text>
+        </TouchableOpacity>
+      </View>
+
+      <FlatList
+        data={todos}
+        renderItem={renderTodo}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={styles.listContent}
+        ListEmptyComponent={
+          <Text style={styles.emptyText}>暂无任务，添加一个吧！</Text>
+        }
+      />
+    </SafeAreaView>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#f5f5f5',
+  },
+  header: {
+    padding: 20,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#000',
+  },
+  subtitle: {
+    fontSize: 14,
+    color: '#666',
+    marginTop: 4,
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    padding: 16,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  input: {
+    flex: 1,
+    height: 48,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    fontSize: 16,
+    marginRight: 12,
+  },
+  addButton: {
+    width: 48,
+    height: 48,
+    backgroundColor: '#007AFF',
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  addButtonText: {
+    fontSize: 24,
+    color: '#fff',
+    fontWeight: '600',
+  },
+  listContent: {
+    padding: 16,
+  },
+  todoItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    padding: 16,
+    borderRadius: 8,
+    marginBottom: 8,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
+      },
+      android: {
+        elevation: 2,
+      },
+    }),
+  },
+  todoCompleted: {
+    opacity: 0.6,
+  },
+  todoCheckbox: {
+    width: 24,
+    height: 24,
+    borderWidth: 2,
+    borderColor: '#007AFF',
+    borderRadius: 12,
+    marginRight: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  todoCheckmark: {
+    width: 12,
+    height: 12,
+    backgroundColor: '#007AFF',
+    borderRadius: 6,
+  },
+  todoText: {
+    fontSize: 16,
+    color: '#000',
+    flex: 1,
+  },
+  todoTextCompleted: {
+    textDecorationLine: 'line-through',
+    color: '#999',
+  },
+  emptyText: {
+    textAlign: 'center',
+    color: '#999',
+    marginTop: 40,
+    fontSize: 16,
+  },
+});
+
+export default App;
+```
+
+## 调试技巧
+
+### 开发者菜单
+
+- **iOS 模拟器**: `Cmd + D`
+- **Android 模拟器**: `Cmd + M` 或摇晃设备
+
+### Chrome DevTools
+
+```bash
+# 启动调试
+npx react-native start --experimental-debugger
+```
+
+### React DevTools
+
+```bash
+# 安装独立版 React DevTools
+npm install -g react-devtools
+
+# 运行
+react-devtools
+```
+
+### 常用调试命令
+
+```bash
+# 清除缓存
+npx react-native start --reset-cache
+
+# 清除 iOS 构建
+cd ios && rm -rf build && cd ..
+
+# 清除 Android 构建
+cd android && ./gradlew clean && cd ..
+
+# 重新安装依赖
+rm -rf node_modules && npm install
+cd ios && pod install && cd ..
+```
+
+## 小结
+
+<MindMap
+  title="入门知识要点"
+  data={{
+    text: "React Native 入门",
+    children: [
+      {
+        text: "环境配置",
+        children: [
+          { text: "Node.js + Watchman" },
+          { text: "Xcode (iOS)" },
+          { text: "Android Studio" }
+        ]
+      },
+      {
+        text: "核心组件",
+        children: [
+          { text: "View / Text / Image" },
+          { text: "ScrollView / FlatList" },
+          { text: "TextInput / Touchables" }
+        ]
+      },
+      {
+        text: "样式系统",
+        children: [
+          { text: "Flexbox 布局" },
+          { text: "StyleSheet API" },
+          { text: "平台适配" }
+        ]
+      },
+      {
+        text: "调试工具",
+        children: [
+          { text: "Chrome DevTools" },
+          { text: "React DevTools" },
+          { text: "Flipper" }
+        ]
+      }
+    ]
+  }}
+/>
+
+下一章将深入学习状态管理、导航系统和网络请求等进阶内容。

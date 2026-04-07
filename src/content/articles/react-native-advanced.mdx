@@ -1,0 +1,983 @@
+---
+title: "React Native 进阶：状态管理与导航系统"
+description: "深入掌握 React Navigation 路由系统、状态管理方案、网络请求封装与性能优化策略"
+pubDate: 2026-04-07
+tags: ["react-native", "进阶", "navigation", "状态管理", "性能优化"]
+category: "移动开发"
+series: "React Native 全栈指南"
+seriesOrder: 2
+featured: true
+---
+
+import MindMap from '../../components/MindMap.astro';
+
+在掌握基础组件后，本篇将深入探讨 React Native 应用开发的核心话题：导航系统、状态管理和网络请求。
+
+<MindMap
+  title="进阶知识体系"
+  data={{
+    text: "React Native 进阶",
+    children: [
+      {
+        text: "导航系统",
+        children: [
+          { text: "React Navigation" },
+          { text: "Stack / Tab / Drawer" },
+          { text: "路由传参与 Deep Link" }
+        ]
+      },
+      {
+        text: "状态管理",
+        children: [
+          { text: "Context + Hooks" },
+          { text: "Zustand" },
+          { text: "React Query" }
+        ]
+      },
+      {
+        text: "网络请求",
+        children: [
+          { text: "Fetch / Axios" },
+          { text: "请求封装" },
+          { text: "离线缓存" }
+        ]
+      },
+      {
+        text: "性能优化",
+        children: [
+          { text: "FlatList 优化" },
+          { text: "memo / useMemo" },
+          { text: "图片优化" }
+        ]
+      }
+    ]
+  }}
+/>
+
+## 导航系统：React Navigation
+
+React Navigation 是 React Native 社区最流行的导航解决方案。
+
+### 安装配置
+
+```bash
+# 核心依赖
+npm install @react-navigation/native
+
+# 导航器
+npm install @react-navigation/native-stack
+npm install @react-navigation/bottom-tabs
+npm install @react-navigation/drawer
+
+# 依赖库
+npm install react-native-screens react-native-safe-area-context
+npm install react-native-gesture-handler react-native-reanimated
+
+# iOS: 安装 Pods
+cd ios && pod install
+```
+
+**入口配置 (App.tsx)**
+
+```tsx
+import 'react-native-gesture-handler';
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+
+// Screens
+import HomeScreen from './screens/HomeScreen';
+import DetailScreen from './screens/DetailScreen';
+import ProfileScreen from './screens/ProfileScreen';
+import SettingsScreen from './screens/SettingsScreen';
+
+// Types
+export type RootStackParamList = {
+  Main: undefined;
+  Detail: { id: string; title?: string };
+  Profile: { userId: string };
+};
+
+export type TabParamList = {
+  HomeTab: undefined;
+  ProfileTab: undefined;
+  SettingsTab: undefined;
+};
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
+const Tab = createBottomTabNavigator<TabParamList>();
+
+// Tab Navigator
+const MainTabs = () => {
+  return (
+    <Tab.Navigator
+      screenOptions={{
+        headerShown: false,
+        tabBarActiveTintColor: '#007AFF',
+        tabBarInactiveTintColor: '#999',
+      }}
+    >
+      <Tab.Screen
+        name="HomeTab"
+        component={HomeScreen}
+        options={{
+          tabBarLabel: '首页',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="home" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="ProfileTab"
+        component={ProfileScreen}
+        options={{
+          tabBarLabel: '我的',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="person" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="SettingsTab"
+        component={SettingsScreen}
+        options={{
+          tabBarLabel: '设置',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="settings" color={color} size={size} />
+          ),
+        }}
+      />
+    </Tab.Navigator>
+  );
+};
+
+// Root Navigator
+const App = () => {
+  return (
+    <SafeAreaProvider>
+      <NavigationContainer>
+        <Stack.Navigator
+          screenOptions={{
+            headerStyle: {
+              backgroundColor: '#fff',
+            },
+            headerTintColor: '#000',
+            headerTitleStyle: {
+              fontWeight: '600',
+            },
+          }}
+        >
+          <Stack.Screen
+            name="Main"
+            component={MainTabs}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="Detail"
+            component={DetailScreen}
+            options={({ route }) => ({
+              title: route.params?.title || '详情',
+            })}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </SafeAreaProvider>
+  );
+};
+
+export default App;
+```
+
+### 路由传参与获取
+
+```tsx
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../App';
+
+type Props = NativeStackScreenProps<RootStackParamList, 'Detail'>;
+
+const DetailScreen: React.FC<Props> = ({ route, navigation }) => {
+  const { id, title } = route.params;
+
+  const goToProfile = () => {
+    // 导航并传参
+    navigation.navigate('Profile', { userId: id });
+  };
+
+  const goBack = () => {
+    navigation.goBack();
+  };
+
+  const resetNavigation = () => {
+    // 重置导航栈
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'Main' }],
+    });
+  };
+
+  return (
+    <View>
+      <Text>Detail ID: {id}</Text>
+      <Button title="返回" onPress={goBack} />
+      <Button title="查看用户" onPress={goToProfile} />
+    </View>
+  );
+};
+```
+
+### useNavigation Hook
+
+```tsx
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../App';
+
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
+
+const MyComponent = () => {
+  const navigation = useNavigation<NavigationProp>();
+
+  return (
+    <TouchableOpacity onPress={() => navigation.navigate('Detail', { id: '1' })}>
+      <Text>跳转详情</Text>
+    </TouchableOpacity>
+  );
+};
+```
+
+### Drawer 导航
+
+```tsx
+import { createDrawerNavigator } from '@react-navigation/drawer';
+
+const Drawer = createDrawerNavigator();
+
+const App = () => (
+  <NavigationContainer>
+    <Drawer.Navigator
+      initialRouteName="Home"
+      screenOptions={{
+        drawerType: 'front',
+        drawerStyle: {
+          width: 280,
+        },
+        drawerActiveTintColor: '#007AFF',
+      }}
+    >
+      <Drawer.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{
+          drawerLabel: '首页',
+          drawerIcon: ({ color }) => <Ionicons name="home" color={color} size={24} />,
+        }}
+      />
+      <Drawer.Screen name="Settings" component={SettingsScreen} />
+    </Drawer.Navigator>
+  </NavigationContainer>
+);
+```
+
+### Deep Linking
+
+```tsx
+// App.tsx
+const linking = {
+  prefixes: ['myapp://', 'https://myapp.com'],
+  config: {
+    screens: {
+      Main: {
+        screens: {
+          HomeTab: 'home',
+          ProfileTab: 'profile',
+        },
+      },
+      Detail: 'detail/:id',
+      Profile: 'user/:userId',
+    },
+  },
+};
+
+const App = () => (
+  <NavigationContainer linking={linking}>
+    {/* ... */}
+  </NavigationContainer>
+);
+```
+
+```bash
+# iOS: 配置 URL Scheme
+# ios/App/Info.plist
+<key>CFBundleURLTypes</key>
+<array>
+  <dict>
+    <key>CFBundleURLSchemes</key>
+    <array>
+      <string>myapp</string>
+    </array>
+  </dict>
+</array>
+
+# Android: 配置 Intent
+# android/app/src/main/AndroidManifest.xml
+<intent-filter>
+  <action android:name="android.intent.action.VIEW" />
+  <category android:name="android.intent.category.DEFAULT" />
+  <category android:name="android.intent.category.BROWSABLE" />
+  <data android:scheme="myapp" />
+</intent-filter>
+```
+
+## 状态管理方案
+
+### Context + Hooks (轻量方案)
+
+```tsx
+// contexts/AuthContext.tsx
+import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+
+interface User {
+  id: string;
+  name: string;
+  email: string;
+}
+
+interface AuthState {
+  user: User | null;
+  token: string | null;
+  isLoading: boolean;
+}
+
+interface AuthContextValue extends AuthState {
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => void;
+  updateUser: (user: Partial<User>) => void;
+}
+
+const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+
+interface AuthProviderProps {
+  children: ReactNode;
+}
+
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+  const [state, setState] = useState<AuthState>({
+    user: null,
+    token: null,
+    isLoading: true,
+  });
+
+  const login = useCallback(async (email: string, password: string) => {
+    try {
+      setState((prev) => ({ ...prev, isLoading: true }));
+      // API 调用
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await response.json();
+
+      setState({
+        user: data.user,
+        token: data.token,
+        isLoading: false,
+      });
+    } catch (error) {
+      setState((prev) => ({ ...prev, isLoading: false }));
+      throw error;
+    }
+  }, []);
+
+  const logout = useCallback(() => {
+    setState({ user: null, token: null, isLoading: false });
+  }, []);
+
+  const updateUser = useCallback((userData: Partial<User>) => {
+    setState((prev) => ({
+      ...prev,
+      user: prev.user ? { ...prev.user, ...userData } : null,
+    }));
+  }, []);
+
+  return (
+    <AuthContext.Provider value={{ ...state, login, logout, updateUser }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within AuthProvider');
+  }
+  return context;
+};
+```
+
+```tsx
+// 使用
+const ProfileScreen = () => {
+  const { user, logout, updateUser } = useAuth();
+
+  return (
+    <View>
+      <Text>{user?.name}</Text>
+      <Button title="退出登录" onPress={logout} />
+    </View>
+  );
+};
+```
+
+### Zustand (推荐)
+
+```tsx
+// stores/useAuthStore.ts
+import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+interface User {
+  id: string;
+  name: string;
+  email: string;
+}
+
+interface AuthState {
+  user: User | null;
+  token: string | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+
+  // Actions
+  setUser: (user: User) => void;
+  setToken: (token: string) => void;
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => void;
+  updateProfile: (data: Partial<User>) => void;
+}
+
+export const useAuthStore = create<AuthState>()(
+  persist(
+    (set, get) => ({
+      user: null,
+      token: null,
+      isAuthenticated: false,
+      isLoading: false,
+
+      setUser: (user) => set({ user, isAuthenticated: true }),
+
+      setToken: (token) => set({ token }),
+
+      login: async (email, password) => {
+        set({ isLoading: true });
+        try {
+          const response = await fetch('/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password }),
+          });
+          const data = await response.json();
+
+          set({
+            user: data.user,
+            token: data.token,
+            isAuthenticated: true,
+            isLoading: false,
+          });
+        } catch (error) {
+          set({ isLoading: false });
+          throw error;
+        }
+      },
+
+      logout: () => {
+        set({
+          user: null,
+          token: null,
+          isAuthenticated: false,
+        });
+      },
+
+      updateProfile: (data) => {
+        const { user } = get();
+        if (user) {
+          set({ user: { ...user, ...data } });
+        }
+      },
+    }),
+    {
+      name: 'auth-storage',
+      storage: createJSONStorage(() => AsyncStorage),
+      partialize: (state) => ({
+        user: state.user,
+        token: state.token,
+        isAuthenticated: state.isAuthenticated,
+      }),
+    }
+  )
+);
+```
+
+```tsx
+// 使用
+const ProfileScreen = () => {
+  const { user, logout } = useAuthStore();
+
+  return (
+    <View>
+      <Text>{user?.name}</Text>
+      <Button title="退出" onPress={logout} />
+    </View>
+  );
+};
+```
+
+### React Query (服务端状态)
+
+```tsx
+// services/api.ts
+import axios from 'axios';
+
+const api = axios.create({
+  baseURL: 'https://api.example.com',
+  timeout: 10000,
+});
+
+// 请求拦截器
+api.interceptors.request.use((config) => {
+  const token = useAuthStore.getState().token;
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+export const postApi = {
+  getPosts: () => api.get('/posts').then((res) => res.data),
+  getPost: (id: string) => api.get(`/posts/${id}`).then((res) => res.data),
+  createPost: (data: CreatePostDto) => api.post('/posts', data).then((res) => res.data),
+};
+```
+
+```tsx
+// hooks/usePosts.ts
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { postApi } from '../services/api';
+
+export const usePosts = () => {
+  return useQuery({
+    queryKey: ['posts'],
+    queryFn: postApi.getPosts,
+    staleTime: 5 * 60 * 1000, // 5 分钟
+  });
+};
+
+export const usePost = (id: string) => {
+  return useQuery({
+    queryKey: ['posts', id],
+    queryFn: () => postApi.getPost(id),
+    enabled: !!id,
+  });
+};
+
+export const useCreatePost = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: postApi.createPost,
+    onSuccess: () => {
+      // 刷新列表
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
+    },
+  });
+};
+```
+
+```tsx
+// 使用
+const PostListScreen = () => {
+  const { data: posts, isLoading, error, refetch } = usePosts();
+
+  if (isLoading) return <LoadingSpinner />;
+  if (error) return <ErrorView onRetry={refetch} />;
+
+  return (
+    <FlatList
+      data={posts}
+      renderItem={({ item }) => <PostCard post={item} />}
+      refreshing={isLoading}
+      onRefresh={refetch}
+    />
+  );
+};
+```
+
+## 网络请求封装
+
+### 完整的 API 封装
+
+```tsx
+// services/http.ts
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
+
+interface RequestConfig {
+  method?: HttpMethod;
+  headers?: Record<string, string>;
+  body?: any;
+  params?: Record<string, string | number>;
+}
+
+interface ApiResponse<T> {
+  data: T;
+  message: string;
+  code: number;
+}
+
+const BASE_URL = 'https://api.example.com';
+
+class HttpClient {
+  private baseURL: string;
+
+  constructor(baseURL: string) {
+    this.baseURL = baseURL;
+  }
+
+  private async getHeaders(customHeaders?: Record<string, string>): Promise<HeadersInit> {
+    const token = await AsyncStorage.getItem('token');
+    return {
+      'Content-Type': 'application/json',
+      ...(token && { Authorization: `Bearer ${token}` }),
+      ...customHeaders,
+    };
+  }
+
+  private buildURL(path: string, params?: Record<string, string | number>): string {
+    const url = new URL(path, this.baseURL);
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        url.searchParams.append(key, String(value));
+      });
+    }
+    return url.toString();
+  }
+
+  async request<T>(path: string, config: RequestConfig = {}): Promise<T> {
+    const { method = 'GET', body, params } = config;
+
+    const url = this.buildURL(path, params);
+    const headers = await this.getHeaders(config.headers);
+
+    const response = await fetch(url, {
+      method,
+      headers,
+      body: body ? JSON.stringify(body) : undefined,
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error.message || `HTTP Error: ${response.status}`);
+    }
+
+    const result: ApiResponse<T> = await response.json();
+    return result.data;
+  }
+
+  get<T>(path: string, params?: Record<string, string | number>) {
+    return this.request<T>(path, { method: 'GET', params });
+  }
+
+  post<T>(path: string, body?: any) {
+    return this.request<T>(path, { method: 'POST', body });
+  }
+
+  put<T>(path: string, body?: any) {
+    return this.request<T>(path, { method: 'PUT', body });
+  }
+
+  delete<T>(path: string) {
+    return this.request<T>(path, { method: 'DELETE' });
+  }
+}
+
+export const http = new HttpClient(BASE_URL);
+```
+
+### 离线支持
+
+```tsx
+// services/offlineQueue.ts
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import NetInfo from '@react-native-community/netinfo';
+
+interface QueuedRequest {
+  id: string;
+  method: string;
+  path: string;
+  body?: any;
+  timestamp: number;
+}
+
+const QUEUE_KEY = 'offline_request_queue';
+
+class OfflineQueue {
+  private isOnline: boolean = true;
+
+  constructor() {
+    NetInfo.addEventListener((state) => {
+      this.isOnline = state.isConnected ?? false;
+      if (this.isOnline) {
+        this.flush();
+      }
+    });
+  }
+
+  async enqueue(method: string, path: string, body?: any): Promise<void> {
+    const queue = await this.getQueue();
+    const request: QueuedRequest = {
+      id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+      method,
+      path,
+      body,
+      timestamp: Date.now(),
+    };
+    queue.push(request);
+    await AsyncStorage.setItem(QUEUE_KEY, JSON.stringify(queue));
+  }
+
+  async getQueue(): Promise<QueuedRequest[]> {
+    const data = await AsyncStorage.getItem(QUEUE_KEY);
+    return data ? JSON.parse(data) : [];
+  }
+
+  async flush(): Promise<void> {
+    const queue = await this.getQueue();
+    if (queue.length === 0) return;
+
+    const remaining: QueuedRequest[] = [];
+
+    for (const request of queue) {
+      try {
+        await http.request(request.path, {
+          method: request.method as any,
+          body: request.body,
+        });
+      } catch {
+        remaining.push(request);
+      }
+    }
+
+    await AsyncStorage.setItem(QUEUE_KEY, JSON.stringify(remaining));
+  }
+}
+
+export const offlineQueue = new OfflineQueue();
+```
+
+## 性能优化
+
+### FlatList 优化清单
+
+```tsx
+<FlatList
+  data={data}
+  renderItem={renderItem}
+  keyExtractor={keyExtractor}
+
+  // 1. 减少初始渲染数量
+  initialNumToRender={10}
+
+  // 2. 控制每批渲染数量
+  maxToRenderPerBatch={10}
+
+  // 3. 渲染窗口大小 (默认 21)
+  windowSize={5}
+
+  // 4. 移除屏幕外视图
+  removeClippedSubviews={true}
+
+  // 5. 静态 Item 高度
+  getItemLayout={(data, index) => ({
+    length: ITEM_HEIGHT,
+    offset: ITEM_HEIGHT * index,
+    index,
+  })}
+
+  // 6. 禁用自动调整
+  updateCellsBatchingPeriod={100}
+
+  // 7. 减少 Cell 更新
+  extraData={minimalState}
+/>
+```
+
+### React.memo 与 useCallback
+
+```tsx
+import React, { memo, useCallback, useMemo } from 'react';
+
+interface ItemProps {
+  id: string;
+  title: string;
+  onPress: (id: string) => void;
+}
+
+// 使用 memo 避免不必要渲染
+const ListItem: React.FC<ItemProps> = memo(({ id, title, onPress }) => {
+  return (
+    <TouchableOpacity onPress={() => onPress(id)}>
+      <Text>{title}</Text>
+    </TouchableOpacity>
+  );
+}, (prevProps, nextProps) => {
+  // 自定义比较
+  return prevProps.id === nextProps.id && prevProps.title === nextProps.title;
+});
+
+const ListContainer = () => {
+  const [items, setItems] = useState<Item[]>([]);
+
+  // 使用 useCallback 稳定回调引用
+  const handlePress = useCallback((id: string) => {
+    console.log('Pressed:', id);
+  }, []);
+
+  // 使用 useMemo 缓存计算结果
+  const sortedItems = useMemo(() => {
+    return [...items].sort((a, b) => a.title.localeCompare(b.title));
+  }, [items]);
+
+  const renderItem = useCallback(({ item }: { item: Item }) => (
+    <ListItem id={item.id} title={item.title} onPress={handlePress} />
+  ), [handlePress]);
+
+  return (
+    <FlatList
+      data={sortedItems}
+      renderItem={renderItem}
+      keyExtractor={(item) => item.id}
+    />
+  );
+};
+```
+
+### 图片优化
+
+```tsx
+import { FastImage } from 'react-native-fast-image';
+
+// 使用 FastImage 替代 Image
+<FastImage
+  source={{
+    uri: 'https://example.com/image.jpg',
+    priority: FastImage.priority.normal,
+    cache: FastImage.cacheControl.immutable,
+  }}
+  style={{ width: 200, height: 150 }}
+  resizeMode={FastImage.resizeMode.cover}
+/>
+
+// 图片预加载
+FastImage.preload([
+  { uri: 'https://example.com/image1.jpg' },
+  { uri: 'https://example.com/image2.jpg' },
+]);
+```
+
+```tsx
+// 图片缓存封装
+import { Image } from 'react-native';
+import { FileSystem } from 'react-native-file-system';
+
+const CACHE_DIR = `${FileSystem.cacheDirectory}images/`;
+
+const getCachedImage = async (uri: string): Promise<string> => {
+  const filename = uri.split('/').pop() || '';
+  const localPath = `${CACHE_DIR}${filename}`;
+
+  const exists = await FileSystem.exists(localPath);
+  if (exists) {
+    return localPath;
+  }
+
+  await FileSystem.downloadAsync(uri, localPath);
+  return localPath;
+};
+```
+
+### InteractionManager
+
+```tsx
+import { InteractionManager } from 'react-native';
+
+const DetailScreen = () => {
+  const [data, setData] = useState(null);
+  const [isReady, setIsReady] = useState(false);
+
+  useEffect(() => {
+    // 等待导航动画完成后再执行
+    const task = InteractionManager.runAfterInteractions(() => {
+      fetchData().then(setData);
+      setIsReady(true);
+    });
+
+    return () => task.cancel();
+  }, []);
+
+  if (!isReady) {
+    return <LoadingPlaceholder />;
+  }
+
+  return <Content data={data} />;
+};
+```
+
+## 小结
+
+<MindMap
+  title="进阶要点回顾"
+  data={{
+    text: "进阶核心",
+    children: [
+      {
+        text: "导航",
+        children: [
+          { text: "Stack / Tab / Drawer" },
+          { text: "路由传参" },
+          { text: "Deep Linking" }
+        ]
+      },
+      {
+        text: "状态管理",
+        children: [
+          { text: "Context 适合简单场景" },
+          { text: "Zustand 轻量高效" },
+          { text: "React Query 服务端状态" }
+        ]
+      },
+      {
+        text: "网络",
+        children: [
+          { text: "请求封装" },
+          { text: "Token 管理" },
+          { text: "离线队列" }
+        ]
+      },
+      {
+        text: "性能",
+        children: [
+          { text: "FlatList 优化配置" },
+          { text: "memo / useCallback" },
+          { text: "图片缓存" }
+        ]
+      }
+    ]
+  }}
+/>
+
+下一章将探讨原生模块开发、高级动画和应用发布等精通级内容。

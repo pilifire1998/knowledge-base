@@ -1,0 +1,910 @@
+---
+title: "React Native 精通：原生模块与生产发布"
+description: "掌握原生模块开发、高级动画系统、自动化测试策略与 CI/CD 发布流程，成为 React Native 专家"
+pubDate: 2026-04-07
+tags: ["react-native", "精通", "原生模块", "动画", "测试", "CICD"]
+category: "移动开发"
+series: "React Native 全栈指南"
+seriesOrder: 3
+featured: true
+---
+
+import MindMap from '../../components/MindMap.astro';
+
+在前两篇掌握基础和进阶内容后，本篇将深入原生模块开发、高级动画、测试策略和应用发布等精通级主题。
+
+<MindMap
+  title="精通级知识体系"
+  data={{
+    text: "React Native 精通",
+    children: [
+      {
+        text: "原生模块",
+        children: [
+          { text: "TurboModules (新架构)" },
+          { text: "Native Modules (旧架构)" },
+          { text: "事件发送" }
+        ]
+      },
+      {
+        text: "动画系统",
+        children: [
+          { text: "Reanimated 3" },
+          { text: "手势交互" },
+          { text: "布局动画" }
+        ]
+      },
+      {
+        text: "测试策略",
+        children: [
+          { text: "Jest 单元测试" },
+          { text: "Detox E2E" },
+          { text: "快照测试" }
+        ]
+      },
+      {
+        text: "发布流程",
+        children: [
+          { text: "App Store" },
+          { text: "Google Play" },
+          { text: "CI/CD 自动化" }
+        ]
+      }
+    ]
+  }}
+/>
+
+## 原生模块开发
+
+### 新架构：TurboModules (推荐)
+
+React Native 0.71+ 支持新架构，使用 TurboModules 提供更好的类型安全和性能。
+
+**1. 定义规范 (NativeSample.ts)**
+
+```typescript
+// src/NativeModules/NativeSample.ts
+import type { TurboModule } from 'react-native';
+import { TurboModuleRegistry } from 'react-native';
+
+export interface Spec extends TurboModule {
+  // 获取设备信息
+  getDeviceName(): Promise<string>;
+
+  // 计算操作
+  add(a: number, b: number): Promise<number>;
+
+  // 存储操作
+  setItem(key: string, value: string): Promise<void>;
+  getItem(key: string): Promise<string | null>;
+
+  // 事件支持
+  addListener(eventName: string): void;
+  removeListeners(count: number): void;
+}
+
+export default TurboModuleRegistry.getEnforcing<Spec>('NativeSample');
+```
+
+**2. iOS 实现 (Objective-C++)**
+
+```objc
+// ios/NativeSample.mm
+#import <React/RCTBridgeModule.h>
+#import <React/RCTEventEmitter.h>
+#import <ReactCommon/RCTTurboModule.h>
+
+@interface NativeSample : RCTEventEmitter
+@end
+
+@implementation NativeSample
+
+RCT_EXPORT_MODULE()
+
+- (dispatch_queue_t)methodQueue {
+  return dispatch_get_main_queue();
+}
+
+- (NSArray<NSString *> *)supportedEvents {
+  return @[@"onCustomEvent"];
+}
+
+// 获取设备名称
+RCT_REMAP_METHOD(getDeviceName,
+                 getDeviceNameWithResolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject) {
+  NSString *deviceName = [[UIDevice currentDevice] name];
+  resolve(deviceName);
+}
+
+// 加法计算
+RCT_REMAP_METHOD(add,
+                 addWithA:(double)a
+                 b:(double)b
+                 resolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject) {
+  resolve(@(a + b));
+}
+
+// 存储操作
+RCT_REMAP_METHOD(setItem,
+                 setItemWithKey:(NSString *)key
+                 value:(NSString *)value
+                 resolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject) {
+  NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+  [defaults setObject:value forKey:key];
+  [defaults synchronize];
+  resolve(nil);
+}
+
+RCT_REMAP_METHOD(getItem,
+                 getItemWithKey:(NSString *)key
+                 resolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject) {
+  NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+  NSString *value = [defaults stringForKey:key];
+  resolve(value ?: [NSNull null]);
+}
+
+// 发送事件
+- (void)sendCustomEvent:(NSString *)message {
+  [self sendEventWithName:@"onCustomEvent" body:@{@"message": message}];
+}
+
+@end
+```
+
+**3. Android 实现 (Kotlin)**
+
+```kotlin
+// android/app/src/main/java/com/myapp/NativeSampleModule.kt
+package com.myapp
+
+import android.content.Context
+import com.facebook.react.bridge.*
+import com.facebook.react.modules.core.DeviceEventManagerModule
+
+class NativeSampleModule(reactContext: ReactApplicationContext) :
+    ReactContextBaseJavaModule(reactContext) {
+
+    override fun getName(): String = "NativeSample"
+
+    // 获取设备名称
+    @ReactMethod
+    fun getDeviceName(promise: Promise) {
+        val deviceName = android.os.Build.MODEL
+        promise.resolve(deviceName)
+    }
+
+    // 加法计算
+    @ReactMethod
+    fun add(a: Double, b: Double, promise: Promise) {
+        promise.resolve(a + b)
+    }
+
+    // 存储操作
+    @ReactMethod
+    fun setItem(key: String, value: String, promise: Promise) {
+        val prefs = reactApplicationContext.getSharedPreferences("NativeSample", Context.MODE_PRIVATE)
+        prefs.edit().putString(key, value).apply()
+        promise.resolve(null)
+    }
+
+    @ReactMethod
+    fun getItem(key: String, promise: Promise) {
+        val prefs = reactApplicationContext.getSharedPreferences("NativeSample", Context.MODE_PRIVATE)
+        val value = prefs.getString(key, null)
+        promise.resolve(value)
+    }
+
+    // 发送事件
+    fun sendCustomEvent(message: String) {
+        reactApplicationContext
+            .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+            .emit("onCustomEvent", Arguments.createMap().apply {
+                putString("message", message)
+            })
+    }
+
+    // 事件监听器注册
+    @ReactMethod
+    fun addListener(eventName: String) {
+        // 占位符，用于注册事件监听
+    }
+
+    @ReactMethod
+    fun removeListeners(count: Int) {
+        // 占位符，用于移除事件监听
+    }
+}
+```
+
+```kotlin
+// 注册模块
+// android/app/src/main/java/com/myapp/MainApplication.kt
+override fun getPackages(): List<ReactPackage> =
+    PackageList(this).packages.apply {
+        add(NativeSamplePackage())
+    }
+```
+
+**4. JavaScript 使用**
+
+```tsx
+// hooks/useNativeSample.ts
+import { NativeEventEmitter, NativeModules } from 'react-native';
+import { useEffect, useState } from 'react';
+
+const { NativeSample } = NativeModules;
+
+export const useDeviceName = () => {
+  const [deviceName, setDeviceName] = useState<string>('');
+
+  useEffect(() => {
+    NativeSample.getDeviceName()
+      .then(setDeviceName)
+      .catch(console.error);
+  }, []);
+
+  return deviceName;
+};
+
+export const useNativeEvents = () => {
+  const [events, setEvents] = useState<string[]>([]);
+
+  useEffect(() => {
+    const eventEmitter = new NativeEventEmitter(NativeSample);
+    const subscription = eventEmitter.addListener('onCustomEvent', (event) => {
+      setEvents((prev) => [...prev, event.message]);
+    });
+
+    return () => subscription.remove();
+  }, []);
+
+  return events;
+};
+
+// 使用示例
+const MyComponent = () => {
+  const deviceName = useDeviceName();
+  const events = useNativeEvents();
+
+  const handleAdd = async () => {
+    const result = await NativeSample.add(10, 20);
+    console.log('Result:', result); // 30
+  };
+
+  return (
+    <View>
+      <Text>设备: {deviceName}</Text>
+      <Button title="计算 10 + 20" onPress={handleAdd} />
+    </View>
+  );
+};
+```
+
+### 旧架构：Native Modules
+
+```tsx
+// iOS
+RCT_EXPORT_MODULE(ModuleName);
+RCT_EXPORT_METHOD(methodName:(NSString *)param resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject);
+
+// Android
+@ReactMethod
+fun methodName(param: String, promise: Promise)
+```
+
+## 高级动画：Reanimated 3
+
+Reanimated 3 提供了在 UI 线程运行的高性能动画系统。
+
+### 安装配置
+
+```bash
+npm install react-native-reanimated
+
+# babel.config.js
+module.exports = {
+  presets: ['babel-preset-expo'],
+  plugins: ['react-native-reanimated/plugin'],
+};
+```
+
+### 基础动画
+
+```tsx
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  withSpring,
+  withRepeat,
+  Easing,
+} from 'react-native-reanimated';
+
+const BasicAnimation = () => {
+  const offset = useSharedValue(0);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: offset.value }],
+  }));
+
+  const move = () => {
+    // 线性动画
+    offset.value = withTiming(100, { duration: 500 });
+
+    // 弹簧动画
+    offset.value = withSpring(100, {
+      damping: 10,
+      stiffness: 100,
+    });
+
+    // 重复动画
+    offset.value = withRepeat(
+      withTiming(100, { duration: 500 }),
+      -1, // 无限重复
+      true // 反向
+    );
+  };
+
+  return (
+    <View>
+      <Animated.View
+        style={[
+          { width: 100, height: 100, backgroundColor: 'red' },
+          animatedStyle,
+        ]}
+      />
+      <Button title="移动" onPress={move} />
+    </View>
+  );
+};
+```
+
+### 手势交互
+
+```tsx
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+} from 'react-native-reanimated';
+
+const DraggableCard = () => {
+  const translateX = useSharedValue(0);
+  const translateY = useSharedValue(0);
+  const scale = useSharedValue(1);
+
+  const panGesture = Gesture.Pan()
+    .onUpdate((e) => {
+      translateX.value = e.translationX;
+      translateY.value = e.translationY;
+    })
+    .onEnd(() => {
+      translateX.value = withSpring(0);
+      translateY.value = withSpring(0);
+    });
+
+  const pinchGesture = Gesture.Pinch()
+    .onUpdate((e) => {
+      scale.value = e.scale;
+    })
+    .onEnd(() => {
+      scale.value = withSpring(1);
+    });
+
+  const composed = Gesture.Simultaneous(panGesture, pinchGesture);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [
+      { translateX: translateX.value },
+      { translateY: translateY.value },
+      { scale: scale.value },
+    ],
+  }));
+
+  return (
+    <GestureDetector gesture={composed}>
+      <Animated.View
+        style={[
+          {
+            width: 150,
+            height: 150,
+            backgroundColor: '#007AFF',
+            borderRadius: 12,
+          },
+          animatedStyle,
+        ]}
+      />
+    </GestureDetector>
+  );
+};
+```
+
+### 列表动画
+
+```tsx
+import Animated, { FadeInDown, FadeOutUp } from 'react-native-reanimated';
+
+const AnimatedListItem = ({ item, index }: { item: any; index: number }) => {
+  return (
+    <Animated.View
+      entering={FadeInDown.delay(index * 100).springify()}
+      exiting={FadeOutUp}
+      layout={Layout.springify()}
+      style={styles.item}
+    >
+      <Text>{item.title}</Text>
+    </Animated.View>
+  );
+};
+
+// 内置动画
+// entering: FadeIn, FadeInDown, FadeInUp, SlideInRight, ZoomIn, BounceIn...
+// exiting: FadeOut, SlideOutRight, ZoomOut...
+// layout: Layout (自动处理布局变化)
+```
+
+### 自定义动画钩子
+
+```tsx
+// hooks/useFlipAnimation.ts
+import { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
+
+export const useFlipAnimation = () => {
+  const rotateY = useSharedValue(0);
+
+  const frontStyle = useAnimatedStyle(() => ({
+    transform: [
+      { perspective: 1000 },
+      { rotateY: `${rotateY.value}deg` },
+    ],
+    opacity: rotateY.value < 90 ? 1 : 0,
+  }));
+
+  const backStyle = useAnimatedStyle(() => ({
+    transform: [
+      { perspective: 1000 },
+      { rotateY: `${rotateY.value + 180}deg` },
+    ],
+    opacity: rotateY.value >= 90 ? 1 : 0,
+  }));
+
+  const flip = () => {
+    rotateY.value = withTiming(rotateY.value === 0 ? 180 : 0, { duration: 500 });
+  };
+
+  return { frontStyle, backStyle, flip };
+};
+```
+
+## 测试策略
+
+### Jest 单元测试
+
+```tsx
+// __tests__/components/Button.test.tsx
+import { render, fireEvent } from '@testing-library/react-native';
+import Button from '../components/Button';
+
+describe('Button', () => {
+  it('renders correctly', () => {
+    const { getByText } = render(<Button title="Click me" onPress={() => {}} />);
+    expect(getByText('Click me')).toBeTruthy();
+  });
+
+  it('calls onPress when pressed', () => {
+    const onPressMock = jest.fn();
+    const { getByText } = render(<Button title="Click" onPress={onPressMock} />);
+
+    fireEvent.press(getByText('Click'));
+    expect(onPressMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('is disabled when disabled prop is true', () => {
+    const onPressMock = jest.fn();
+    const { getByText } = render(
+      <Button title="Click" onPress={onPressMock} disabled />
+    );
+
+    fireEvent.press(getByText('Click'));
+    expect(onPressMock).not.toHaveBeenCalled();
+  });
+});
+```
+
+```tsx
+// __tests__/hooks/useCounter.test.ts
+import { renderHook, act } from '@testing-library/react-hooks';
+import { useCounter } from '../hooks/useCounter';
+
+describe('useCounter', () => {
+  it('initializes with default value', () => {
+    const { result } = renderHook(() => useCounter());
+    expect(result.current.count).toBe(0);
+  });
+
+  it('increments count', () => {
+    const { result } = renderHook(() => useCounter());
+
+    act(() => {
+      result.current.increment();
+    });
+
+    expect(result.current.count).toBe(1);
+  });
+});
+```
+
+### Detox E2E 测试
+
+```bash
+npm install detox detox --save-dev
+```
+
+```typescript
+// e2e/login.test.ts
+describe('Login', () => {
+  beforeAll(async () => {
+    await device.launchApp();
+  });
+
+  beforeEach(async () => {
+    await device.reloadReactNative();
+  });
+
+  it('should show login form', async () => {
+    await expect(element(by.id('login-form'))).toBeVisible();
+    await expect(element(by.id('email-input'))).toBeVisible();
+    await expect(element(by.id('password-input'))).toBeVisible();
+  });
+
+  it('should login successfully', async () => {
+    await element(by.id('email-input')).typeText('test@example.com');
+    await element(by.id('password-input')).typeText('password123');
+    await element(by.id('login-button')).tap();
+
+    // 等待导航完成
+    await waitFor(element(by.id('home-screen')))
+      .toBeVisible()
+      .withTimeout(5000);
+  });
+
+  it('should show error for invalid credentials', async () => {
+    await element(by.id('email-input')).typeText('wrong@example.com');
+    await element(by.id('password-input')).typeText('wrongpass');
+    await element(by.id('login-button')).tap();
+
+    await expect(element(by.text('登录失败'))).toBeVisible();
+  });
+});
+```
+
+**配置文件**
+
+```json
+// .detoxrc.json
+{
+  "testRunner": "jest",
+  "runnerConfig": "e2e/config.json",
+  "configurations": {
+    "ios.sim.debug": {
+      "type": "ios.simulator",
+      "binaryPath": "ios/build/Build/Products/Debug-iphonesimulator/MyApp.app",
+      "build": "xcodebuild -workspace ios/MyApp.xcworkspace -scheme MyApp -configuration Debug -sdk iphonesimulator -derivedDataPath ios/build",
+      "device": {
+        "type": "iPhone 15"
+      }
+    },
+    "android.emu.debug": {
+      "type": "android.emulator",
+      "binaryPath": "android/app/build/outputs/apk/debug/app-debug.apk",
+      "build": "cd android && ./gradlew assembleDebug assembleAndroidTest -DtestBuildType=debug",
+      "device": {
+        "avdName": "Pixel_5_API_33"
+      }
+    }
+  }
+}
+```
+
+## 应用发布
+
+### iOS 发布
+
+**1. 配置**
+
+```ruby
+# ios/App/App.xcworkspace
+# 配置 Bundle Identifier
+# 配置 Signing & Capabilities
+# 配置版本号和构建号
+```
+
+**2. App Store Connect**
+
+```bash
+# 安装 Fastlane
+gem install fastlane
+
+# 初始化
+cd ios && fastlane init
+```
+
+```ruby
+# ios/fastlane/Fastfile
+default_platform(:ios)
+
+platform :ios do
+  desc "构建并上传到 TestFlight"
+  lane :beta do
+    # 增加构建号
+    increment_build_number
+
+    # 构建
+    gym(
+      scheme: "MyApp",
+      export_method: "app-store",
+      output_directory: "./build",
+    )
+
+    # 上传到 TestFlight
+    pilot(
+      skip_waiting_for_build_processing: true,
+    )
+  end
+
+  desc "提交到 App Store"
+  lane :release do
+    # 构建
+    gym(
+      scheme: "MyApp",
+      export_method: "app-store",
+    )
+
+    # 上传
+    deliver(
+      force: true,
+      submit_for_review: true,
+      automatic_release: true,
+    )
+  end
+end
+```
+
+```bash
+# 发布测试版
+fastlane beta
+
+# 正式发布
+fastlane release
+```
+
+### Android 发布
+
+**1. 签名配置**
+
+```bash
+# 生成签名密钥
+keytool -genkeypair -v -storetype PKCS12 \
+  -keystore my-release-key.keystore \
+  -alias my-key-alias \
+  -keyalg RSA \
+  -keysize 2048 \
+  -validity 10000
+```
+
+```gradle
+// android/app/build.gradle
+android {
+  signingConfigs {
+    release {
+      storeFile file('my-release-key.keystore')
+      storePassword System.getenv("KEYSTORE_PASSWORD")
+      keyAlias "my-key-alias"
+      keyPassword System.getenv("KEY_PASSWORD")
+    }
+  }
+
+  buildTypes {
+    release {
+      signingConfig signingConfigs.release
+      minifyEnabled true
+      proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+    }
+  }
+}
+```
+
+**2. 构建发布版**
+
+```bash
+# 构建 AAB (Google Play 推荐)
+cd android
+./gradlew bundleRelease
+
+# 输出: android/app/build/outputs/bundle/release/app-release.aab
+
+# 构建 APK
+./gradlew assembleRelease
+
+# 输出: android/app/build/outputs/apk/release/app-release.apk
+```
+
+### CI/CD 配置
+
+**GitHub Actions**
+
+```yaml
+# .github/workflows/release.yml
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  ios:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+
+      - name: Install dependencies
+        run: |
+          npm install -g pnpm
+          pnpm install
+          cd ios && pod install
+
+      - name: Setup Fastlane
+        run: |
+          gem install fastlane
+          cd ios && fastlane beta
+        env:
+          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
+
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Install dependencies
+        run: |
+          npm install -g pnpm
+          pnpm install
+
+      - name: Build Release AAB
+        run: |
+          cd android
+          ./gradlew bundleRelease
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+
+      - name: Upload to Play Store
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_STORE_SERVICE_ACCOUNT }}
+          packageName: com.myapp
+          releaseFiles: android/app/build/outputs/bundle/release/app-release.aab
+          track: internal
+```
+
+### CodePush 热更新
+
+```bash
+npm install react-native-code-push
+```
+
+```tsx
+// App.tsx
+import CodePush from 'react-native-code-push';
+
+const App = () => {
+  return (
+    <NavigationContainer>
+      {/* ... */}
+    </NavigationContainer>
+  );
+};
+
+const codePushOptions = {
+  checkFrequency: CodePush.CheckFrequency.ON_APP_START,
+  installMode: CodePush.InstallMode.IMMEDIATE,
+  mandatoryInstallMode: CodePush.InstallMode.IMMEDIATE,
+  updateDialog: {
+    title: '更新可用',
+    optionalUpdateMessage: '有新版本可用，是否更新？',
+    optionalInstallButtonLabel: '更新',
+    optionalIgnoreButtonLabel: '忽略',
+  },
+};
+
+export default CodePush(codePushOptions)(App);
+```
+
+```bash
+# 发布热更新
+appcenter codepush release-react -a <owner>/<app> -d Production
+```
+
+## 小结
+
+<MindMap
+  title="精通级能力清单"
+  data={{
+    text: "精通能力",
+    children: [
+      {
+        text: "原生开发",
+        children: [
+          { text: "TurboModules 新架构" },
+          { text: "iOS / Android 双端实现" },
+          { text: "原生事件通信" }
+        ]
+      },
+      {
+        text: "动画精通",
+        children: [
+          { text: "Reanimated 3 高性能动画" },
+          { text: "手势交互系统" },
+          { text: "复杂动效实现" }
+        ]
+      },
+      {
+        text: "质量保障",
+        children: [
+          { text: "单元测试覆盖" },
+          { text: "E2E 自动化测试" },
+          { text: "持续集成" }
+        ]
+      },
+      {
+        text: "发布运维",
+        children: [
+          { text: "App Store / Play Store" },
+          { text: "CI/CD 自动化" },
+          { text: "CodePush 热更新" }
+        ]
+      }
+    ]
+  }}
+/>
+
+## 系列总结
+
+React Native 全栈指南三篇完整覆盖：
+
+| 阶段 | 核心内容 | 目标 |
+|------|----------|------|
+| **入门** | 环境搭建、核心组件、样式布局 | 能开发简单应用 |
+| **进阶** | 导航、状态管理、网络、性能 | 能开发完整应用 |
+| **精通** | 原生模块、动画、测试、发布 | 能独立发布商业应用 |
+
+持续学习建议：
+- 关注 [React Native 官方博客](https://reactnative.dev/blog)
+- 参与社区讨论 (Discord, GitHub Discussions)
+- 实践开源项目
+- 持续关注新架构演进

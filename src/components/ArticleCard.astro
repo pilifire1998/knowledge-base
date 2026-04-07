@@ -1,0 +1,39 @@
+---
+import { formatDate } from '../utils/formatDate';
+
+interface Props {
+  title: string;
+  description: string;
+  pubDate: Date;
+  tags: string[];
+  slug: string;
+  readingTime?: number;
+}
+
+const { title, description, pubDate, tags, slug, readingTime = 5 } = Astro.props;
+---
+
+<a
+  href={`/articles/${slug}`}
+  class="group block p-6 bg-[var(--color-surface)] border-l-4 border-[var(--color-border)] hover:translate-y-[-4px] transition-transform duration-200"
+>
+  <div class="flex flex-wrap gap-2 mb-3">
+    {tags.slice(0, 3).map((tag) => (
+      <span class="text-caption uppercase tracking-wider text-secondary">
+        [{tag}]
+      </span>
+    ))}
+  </div>
+
+  <h2 class="text-h3 text-primary mb-3 group-hover:opacity-70 transition-opacity">
+    {title}
+  </h2>
+
+  <p class="text-body text-secondary mb-4 line-clamp-2">
+    {description}
+  </p>
+
+  <div class="text-caption text-muted">
+    {formatDate(pubDate)} · {readingTime} 分钟阅读
+  </div>
+</a>
