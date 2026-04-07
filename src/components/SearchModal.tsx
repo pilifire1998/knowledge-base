@@ -120,15 +120,18 @@ export default function SearchModal() {
       }
     };
 
-    // Listen for button click
+    // Listen for button click (desktop + mobile)
     const searchBtn = document.getElementById('search-btn');
+    const searchBtnMobile = document.getElementById('search-btn-mobile');
     searchBtn?.addEventListener('click', handleOpenSearch);
+    searchBtnMobile?.addEventListener('click', handleOpenSearch);
 
     // Listen for keyboard
     document.addEventListener('keydown', handleKeyDown);
 
     return () => {
       searchBtn?.removeEventListener('click', handleOpenSearch);
+      searchBtnMobile?.removeEventListener('click', handleOpenSearch);
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, [isOpen, openModal, closeModal, results.length, selectedIndex]);
@@ -198,7 +201,7 @@ export default function SearchModal() {
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-start justify-center pt-[15vh] bg-black/50"
+      className="fixed inset-0 z-[100] flex items-start justify-center pt-[8vh] sm:pt-[15vh] bg-black/50"
       onClick={closeModal}
     >
       <div
@@ -220,7 +223,7 @@ export default function SearchModal() {
           <kbd className="px-2 py-1 text-xs text-muted bg-[var(--color-bg)] border border-[var(--color-border)] rounded flex-shrink-0">ESC</kbd>
         </div>
 
-        <div className="max-h-[50vh] overflow-y-auto">
+        <div className="max-h-[60vh] sm:max-h-[50vh] overflow-y-auto">
           {loading && (
             <div className="px-4 py-8 text-center text-muted">搜索中...</div>
           )}

@@ -9,84 +9,83 @@ featured: true
 
 import MindMap from '../../components/MindMap.astro';
 import TravelMap from '../../components/TravelMap';
+import TravelTimeline from '../../components/TravelTimeline';
 
 ## 行程概览
 
 ### 🗺️ 完整路线图
 
-<MindMap
+<TravelTimeline
+  client:load
   title="8日行程框架"
-  data={{
-    text: "关西8日游 5.2-5.9",
-    children: [
-      {
-        text: "Day 1 (5/2) 大阪",
-        children: [
-          { text: "关西机场 関西空港" },
-          { text: "黑门市场 くろもん" },
-          { text: "心斋桥 しんさいばし" },
-          { text: "道顿堀 どうとんぼり" }
-        ]
-      },
-      {
-        text: "Day 2 (5/3) 大阪",
-        children: [
-          { text: "大阪城 おおさかじょう" },
-          { text: "梅田 うめだ" },
-          { text: "通天阁 つうてんかく" }
-        ]
-      },
-      {
-        text: "Day 3 (5/4) 大阪",
-        children: [
-          { text: "USJ环球影城 ⭐" },
-          { text: "任天堂世界" },
-          { text: "哈利波特" }
-        ]
-      },
-      {
-        text: "Day 4 (5/5) 京都",
-        children: [
-          { text: "伏见稻荷 ⭐" },
-          { text: "清水寺 きよみずでら" },
-          { text: "祇园 ぎおん" }
-        ]
-      },
-      {
-        text: "Day 5 (5/6) 京都",
-        children: [
-          { text: "岚山竹林 ⭐" },
-          { text: "天龙寺 てんりゅうじ" },
-          { text: "小火车" },
-          { text: "渡月桥" }
-        ]
-      },
-      {
-        text: "Day 6 (5/7) 京都",
-        children: [
-          { text: "金阁寺 きんかくじ" },
-          { text: "锦市场 にしきいちば" }
-        ]
-      },
-      {
-        text: "Day 7 (5/8) 奈良",
-        children: [
-          { text: "奈良公园 ⭐" },
-          { text: "东大寺 とうだいじ" },
-          { text: "春日大社" }
-        ]
-      },
-      {
-        text: "Day 8 (5/9) 神户→香港",
-        children: [
-          { text: "北野异人馆" },
-          { text: "神户牛肉 ⭐" },
-          { text: "神户港" },
-          { text: "返程 🇭🇰" }
-        ]
-      }
-    ]
-  }}
+  days={[
+    {
+      day: 1, date: "5/2", city: "大阪", emoji: "🏙️",
+      stops: [
+        { name: "关西机场 関西空港" },
+        { name: "黑门市场 くろもん", highlight: true },
+        { name: "心斋桥 しんさいばし" },
+        { name: "道顿堀 どうとんぼり", highlight: true },
+      ],
+    },
+    {
+      day: 2, date: "5/3", city: "大阪", emoji: "🏯",
+      stops: [
+        { name: "大阪城 おおさかじょう", highlight: true },
+        { name: "梅田 うめだ" },
+        { name: "通天阁 つうてんかく" },
+      ],
+    },
+    {
+      day: 3, date: "5/4", city: "大阪", emoji: "🎢",
+      stops: [
+        { name: "USJ环球影城", highlight: true },
+        { name: "任天堂世界", highlight: true },
+        { name: "哈利波特" },
+      ],
+    },
+    {
+      day: 4, date: "5/5", city: "京都", emoji: "⛩️",
+      stops: [
+        { name: "伏见稻荷大社", highlight: true },
+        { name: "清水寺 きよみずでら", highlight: true },
+        { name: "祇园 ぎおん" },
+      ],
+    },
+    {
+      day: 5, date: "5/6", city: "京都", emoji: "🎋",
+      stops: [
+        { name: "岚山竹林", highlight: true },
+        { name: "天龙寺 てんりゅうじ" },
+        { name: "小火车", highlight: true },
+        { name: "渡月桥" },
+      ],
+    },
+    {
+      day: 6, date: "5/7", city: "京都", emoji: "✨",
+      stops: [
+        { name: "金阁寺 きんかくじ", highlight: true },
+        { name: "锦市场 にしきいちば" },
+      ],
+    },
+    {
+      day: 7, date: "5/8", city: "奈良", emoji: "🦌",
+      stops: [
+        { name: "奈良公园", highlight: true },
+        { name: "东大寺 とうだいじ", highlight: true },
+        { name: "春日大社" },
+      ],
+    },
+    {
+      day: 8, date: "5/9", city: "神户→香港", emoji: "🥩",
+      stops: [
+        { name: "北野异人馆" },
+        { name: "神户牛肉", highlight: true },
+        { name: "神户港" },
+        { name: "返程 🇭🇰" },
+      ],
+    },
+  ]}
 />
 
 ### 基本信息

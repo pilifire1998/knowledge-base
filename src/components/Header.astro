@@ -9,12 +9,13 @@ const navLinks = [
 ---
 
 <header class="sticky top-0 z-50 bg-[var(--color-bg)] border-b border-[var(--color-border)]">
-  <nav class="container h-16 flex items-center justify-between" aria-label="主导航">
-    <a href="/" class="text-xl font-black tracking-tight text-primary hover:opacity-70 transition-opacity">
+  <nav class="container h-14 sm:h-16 flex items-center justify-between" aria-label="主导航">
+    <a href="/" class="text-lg sm:text-xl font-black tracking-tight text-primary hover:opacity-70 transition-opacity">
       DEV.JOURNAL
     </a>
 
-    <div class="flex items-center gap-6">
+    <!-- Desktop nav -->
+    <div class="hidden sm:flex items-center gap-6">
       {navLinks.map((link) => (
         <a
           href={link.href}
@@ -51,7 +52,64 @@ const navLinks = [
         </svg>
       </button>
     </div>
+
+    <!-- Mobile actions -->
+    <div class="flex sm:hidden items-center gap-2">
+      <button
+        id="search-btn-mobile"
+        type="button"
+        class="p-2 text-secondary hover:text-primary transition-colors"
+        aria-label="搜索"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+      </button>
+
+      <button
+        id="theme-toggle-mobile"
+        type="button"
+        class="p-2 text-secondary hover:text-primary transition-colors"
+        aria-label="切换主题"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 dark-icon-mobile" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+        </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 light-icon-mobile hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+        </svg>
+      </button>
+
+      <button
+        id="mobile-menu-btn"
+        type="button"
+        class="p-2 text-secondary hover:text-primary transition-colors"
+        aria-label="打开菜单"
+        aria-expanded="false"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 menu-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 close-icon hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
   </nav>
+
+  <!-- Mobile menu panel -->
+  <div id="mobile-menu" class="hidden sm:hidden border-t border-[var(--color-border)] bg-[var(--color-bg)]">
+    <div class="container py-4 flex flex-col gap-3">
+      {navLinks.map((link) => (
+        <a
+          href={link.href}
+          class="text-base font-semibold text-secondary hover:text-primary transition-colors py-2"
+        >
+          {link.label}
+        </a>
+      ))}
+    </div>
+  </div>
 </header>
 
 <div id="search-modal-container" class="contents">
@@ -59,10 +117,7 @@ const navLinks = [
 </div>
 
 <script>
-  const themeToggle = document.getElementById('theme-toggle');
-  const darkIcon = document.querySelector('.dark-icon');
-  const lightIcon = document.querySelector('.light-icon');
-
+  // Theme toggle (shared logic)
   function getTheme() {
     return localStorage.getItem('theme') ||
       (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
@@ -71,19 +126,42 @@ const navLinks = [
   function setTheme(theme: string) {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('theme', theme);
-    if (theme === 'dark') {
-      darkIcon?.classList.add('hidden');
-      lightIcon?.classList.remove('hidden');
-    } else {
-      darkIcon?.classList.remove('hidden');
-      lightIcon?.classList.add('hidden');
-    }
+    const isDark = theme === 'dark';
+    // Desktop icons
+    document.querySelector('.dark-icon')?.classList.toggle('hidden', isDark);
+    document.querySelector('.light-icon')?.classList.toggle('hidden', !isDark);
+    // Mobile icons
+    document.querySelector('.dark-icon-mobile')?.classList.toggle('hidden', isDark);
+    document.querySelector('.light-icon-mobile')?.classList.toggle('hidden', !isDark);
   }
 
   setTheme(getTheme());
 
-  themeToggle?.addEventListener('click', () => {
+  // Desktop theme toggle
+  document.getElementById('theme-toggle')?.addEventListener('click', () => {
     const current = document.documentElement.getAttribute('data-theme');
     setTheme(current === 'dark' ? 'light' : 'dark');
   });
+
+  // Mobile theme toggle
+  document.getElementById('theme-toggle-mobile')?.addEventListener('click', () => {
+    const current = document.documentElement.getAttribute('data-theme');
+    setTheme(current === 'dark' ? 'light' : 'dark');
+  });
+
+  // Mobile menu toggle
+  const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+  const mobileMenu = document.getElementById('mobile-menu');
+  const menuIcon = document.querySelector('.menu-icon');
+  const closeIcon = document.querySelector('.close-icon');
+
+  mobileMenuBtn?.addEventListener('click', () => {
+    const isOpen = !mobileMenu?.classList.contains('hidden');
+    mobileMenu?.classList.toggle('hidden', isOpen);
+    menuIcon?.classList.toggle('hidden', !isOpen);
+    closeIcon?.classList.toggle('hidden', isOpen);
+    mobileMenuBtn.setAttribute('aria-expanded', String(!isOpen));
+  });
+
+  // Mobile search is handled directly by SearchModal listening on #search-btn-mobile
 </script>

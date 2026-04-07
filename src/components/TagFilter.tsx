@@ -25,6 +25,7 @@ const TAG_CATEGORIES: Record<string, string[]> = {
 export default function TagFilter({ articles }: TagFilterProps) {
   const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set());
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
   // 获取所有标签及其数量
   const tagStats = useMemo(() => {
@@ -99,10 +100,103 @@ export default function TagFilter({ articles }: TagFilterProps) {
     setSelectedTags(new Set());
   }, []);
 
+  const tagSidebar = (
+    <>
+      {/* 已选标签 */}
+      {selectedTags.size > 0 && (
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-caption uppercase tracking-wider text-muted font-semibold">
+              已选 {selectedTags.size}
+            </span>
+            <button
+              onClick={clearFilter}
+              className="text-xs text-secondary hover:text-primary"
+            >
+              清除
+            </button>
+          </div>
+          <div className="flex flex-wrap gap-1">
+            {Array.from(selectedTags).map((tag) => (
+              <button
+                key={tag}
+                onClick={() => toggleTag(tag)}
+                className="inline-flex items-center gap-1 px-2 py-1 bg-[var(--color-primary)] text-[var(--color-bg)] text-xs"
+              >
+                {tag}
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* 标签分类 */}
+      <nav className="space-y-4">
+        {Object.entries(categorizedTags).map(([category, tags]) => (
+          <div key={category}>
+            <h3 className="text-caption uppercase tracking-wider text-muted font-semibold mb-2">
+              {category}
+            </h3>
+            <div className="space-y-1">
+              {tags.map(([tag, count]) => (
+                <button
+                  key={tag}
+                  onClick={() => toggleTag(tag)}
+                  className={`w-full text-left px-2 py-1.5 text-sm rounded transition-colors flex items-center justify-between ${
+                    selectedTags.has(tag)
+                      ? 'bg-[var(--color-primary)] text-[var(--color-bg)]'
+                      : 'text-secondary hover:text-primary hover:bg-[var(--color-bg)]'
+                  }`}
+                >
+                  <span className="truncate">{tag}</span>
+                  <span className={`text-xs ${selectedTags.has(tag) ? 'opacity-70' : 'text-muted'}`}>
+                    {count}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        ))}
+      </nav>
+    </>
+  );
+
   return (
-    <div className="flex gap-8">
-      {/* 左侧标签栏 */}
-      <aside className={`${isSidebarOpen ? 'w-56' : 'w-12'} flex-shrink-0 transition-all duration-200`}>
+    <div className="md:flex md:gap-8">
+      {/* Mobile filter toggle */}
+      <div className="md:hidden mb-4">
+        <button
+          onClick={() => setIsMobileFilterOpen(!isMobileFilterOpen)}
+          className="w-full flex items-center justify-between py-3 px-4 border border-[var(--color-border)] rounded text-sm font-semibold text-secondary"
+        >
+          <span>
+            筛选标签
+            {selectedTags.size > 0 && (
+              <span className="ml-2 px-1.5 py-0.5 bg-[var(--color-primary)] text-[var(--color-bg)] text-xs rounded">
+                {selectedTags.size}
+              </span>
+            )}
+          </span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className={`w-4 h-4 transition-transform ${isMobileFilterOpen ? 'rotate-180' : ''}`}
+            fill="none" viewBox="0 0 24 24" stroke="currentColor"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+        {isMobileFilterOpen && (
+          <div className="mt-2 p-4 border border-[var(--color-border)] rounded bg-[var(--color-surface)]">
+            {tagSidebar}
+          </div>
+        )}
+      </div>
+
+      {/* Desktop sidebar */}
+      <aside className={`hidden md:block ${isSidebarOpen ? 'w-56' : 'w-12'} flex-shrink-0 transition-all duration-200`}>
         <div className="sticky top-24">
           {/* 折叠按钮 */}
           <button
@@ -119,88 +213,26 @@ export default function TagFilter({ articles }: TagFilterProps) {
             </svg>
           </button>
 
-          {isSidebarOpen && (
-            <>
-              {/* 已选标签 */}
-              {selectedTags.size > 0 && (
-                <div className="mb-6">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-caption uppercase tracking-wider text-muted font-semibold">
-                      已选 {selectedTags.size}
-                    </span>
-                    <button
-                      onClick={clearFilter}
-                      className="text-xs text-secondary hover:text-primary"
-                    >
-                      清除
-                    </button>
-                  </div>
-                  <div className="flex flex-wrap gap-1">
-                    {Array.from(selectedTags).map((tag) => (
-                      <button
-                        key={tag}
-                        onClick={() => toggleTag(tag)}
-                        className="inline-flex items-center gap-1 px-2 py-1 bg-[var(--color-primary)] text-[var(--color-bg)] text-xs"
-                      >
-                        {tag}
-                        <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* 标签分类 */}
-              <nav className="space-y-4">
-                {Object.entries(categorizedTags).map(([category, tags]) => (
-                  <div key={category}>
-                    <h3 className="text-caption uppercase tracking-wider text-muted font-semibold mb-2">
-                      {category}
-                    </h3>
-                    <div className="space-y-1">
-                      {tags.map(([tag, count]) => (
-                        <button
-                          key={tag}
-                          onClick={() => toggleTag(tag)}
-                          className={`w-full text-left px-2 py-1.5 text-sm rounded transition-colors flex items-center justify-between ${
-                            selectedTags.has(tag)
-                              ? 'bg-[var(--color-primary)] text-[var(--color-bg)]'
-                              : 'text-secondary hover:text-primary hover:bg-[var(--color-bg)]'
-                          }`}
-                        >
-                          <span className="truncate">{tag}</span>
-                          <span className={`text-xs ${selectedTags.has(tag) ? 'opacity-70' : 'text-muted'}`}>
-                            {count}
-                          </span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </nav>
-            </>
-          )}
+          {isSidebarOpen && tagSidebar}
         </div>
       </aside>
 
-      {/* 右侧文章列表 */}
+      {/* 文章列表 */}
       <main className="flex-1 min-w-0">
         {/* 文章数量 */}
-        <div className="mb-6 pb-4 border-b border-[var(--color-border)]">
+        <div className="mb-4 sm:mb-6 pb-4 border-b border-[var(--color-border)]">
           <span className="text-secondary">
             <span className="font-semibold text-primary text-lg">{filteredArticles.length}</span> 篇文章
           </span>
         </div>
 
         {/* 文章列表 */}
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-2">
           {filteredArticles.map((article) => (
             <a
               key={article.slug}
               href={`/articles/${article.slug}`}
-              className="group block p-5 bg-[var(--color-surface)] border border-[var(--color-border)] hover:border-[var(--color-primary)] transition-all duration-200"
+              className="group block p-4 sm:p-5 bg-[var(--color-surface)] border border-[var(--color-border)] hover:border-[var(--color-primary)] transition-all duration-200"
             >
               <div className="flex flex-wrap gap-2 mb-2">
                 {article.tags.slice(0, 3).map((tag) => (

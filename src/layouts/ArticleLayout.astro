@@ -20,18 +20,18 @@ const { title, description, pubDate, tags, readingTime = 5 } = Astro.props;
   <article class="min-h-screen">
     <!-- Article Header - Full Width -->
     <header class="border-b border-[var(--color-border)] bg-[var(--color-surface)]">
-      <div class="container py-12 lg:py-16">
+      <div class="container py-8 sm:py-12 lg:py-16">
         <div class="max-w-4xl">
-          <div class="flex flex-wrap gap-3 mb-6">
+          <div class="flex flex-wrap gap-2 sm:gap-3 mb-4 sm:mb-6">
             {tags.map((tag) => (
               <span class="text-caption uppercase tracking-wider text-secondary px-2 py-1 border border-[var(--color-border)]">
                 {tag}
               </span>
             ))}
           </div>
-          <h1 class="text-display text-primary mb-6">{title}</h1>
-          <p class="text-xl text-secondary mb-6 max-w-2xl">{description}</p>
-          <div class="flex items-center gap-6 text-caption text-muted">
+          <h1 class="text-display text-primary mb-4 sm:mb-6">{title}</h1>
+          <p class="text-base sm:text-xl text-secondary mb-4 sm:mb-6 max-w-2xl">{description}</p>
+          <div class="flex items-center gap-4 sm:gap-6 text-caption text-muted">
             <span>{pubDate.toLocaleDateString('zh-CN')}</span>
             <span>·</span>
             <span>{readingTime} 分钟阅读</span>
@@ -40,15 +40,34 @@ const { title, description, pubDate, tags, readingTime = 5 } = Astro.props;
       </div>
     </header>
 
+    <!-- Mobile TOC (collapsible) -->
+    <div class="lg:hidden border-b border-[var(--color-border)]">
+      <div class="container">
+        <button
+          id="mobile-toc-toggle"
+          class="w-full flex items-center justify-between py-3 text-sm font-semibold text-secondary"
+          aria-expanded="false"
+        >
+          <span>目录导航</span>
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mobile-toc-chevron transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+        <div id="mobile-toc-content" class="hidden pb-4">
+          <TableOfContents showProgress={false} client:load />
+        </div>
+      </div>
+    </div>
+
     <!-- Article Content - With TOC Sidebar -->
-    <div class="container py-12 lg:py-16">
+    <div class="container py-8 sm:py-12 lg:py-16">
       <div class="lg:grid lg:grid-cols-[1fr_280px] lg:gap-16 lg:max-w-6xl lg:mx-auto">
         <!-- Main Content -->
         <div class="prose min-w-0 max-w-none">
           <slot />
         </div>
 
-        <!-- Sidebar -->
+        <!-- Sidebar (desktop only) -->
         <aside class="hidden lg:block">
           <div class="sticky top-24">
             <TableOfContents client:load />
@@ -59,7 +78,7 @@ const { title, description, pubDate, tags, readingTime = 5 } = Astro.props;
   </article>
 
   <!-- Article Footer -->
-  <footer class="border-t border-[var(--color-border)] py-8 bg-[var(--color-bg)]">
+  <footer class="border-t border-[var(--color-border)] py-6 sm:py-8 bg-[var(--color-bg)]">
     <div class="container">
       <div class="max-w-4xl flex items-center justify-between">
         <a href="/articles" class="text-sm text-secondary hover:text-primary transition-colors">
@@ -72,3 +91,16 @@ const { title, description, pubDate, tags, readingTime = 5 } = Astro.props;
     </div>
   </footer>
 </BaseLayout>
+
+<script>
+  const tocToggle = document.getElementById('mobile-toc-toggle');
+  const tocContent = document.getElementById('mobile-toc-content');
+  const tocChevron = document.querySelector('.mobile-toc-chevron');
+
+  tocToggle?.addEventListener('click', () => {
+    const isOpen = !tocContent?.classList.contains('hidden');
+    tocContent?.classList.toggle('hidden', isOpen);
+    tocChevron?.classList.toggle('rotate-180', !isOpen);
+    tocToggle.setAttribute('aria-expanded', String(!isOpen));
+  });
+</script>

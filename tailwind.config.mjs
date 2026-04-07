@@ -16,9 +16,9 @@ export default {
         mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
       },
       fontSize: {
-        'display': ['4rem', { lineHeight: '1.1', letterSpacing: '-0.03em', fontWeight: '900' }],
-        'h1': ['2.5rem', { lineHeight: '1.2', letterSpacing: '-0.02em', fontWeight: '900' }],
-        'h2': ['1.75rem', { lineHeight: '1.3', fontWeight: '800' }],
+        'display': ['clamp(2.25rem, 1.5rem + 3.5vw, 4rem)', { lineHeight: '1.1', letterSpacing: '-0.03em', fontWeight: '900' }],
+        'h1': ['clamp(1.75rem, 1.25rem + 2vw, 2.5rem)', { lineHeight: '1.2', letterSpacing: '-0.02em', fontWeight: '900' }],
+        'h2': ['clamp(1.375rem, 1.1rem + 1.2vw, 1.75rem)', { lineHeight: '1.3', fontWeight: '800' }],
         'h3': ['1.25rem', { lineHeight: '1.4', fontWeight: '700' }],
         'body': ['1.05rem', { lineHeight: '1.75', fontWeight: '400' }],
         'caption': ['0.75rem', { lineHeight: '1.5', letterSpacing: '0.05em', fontWeight: '600' }],
