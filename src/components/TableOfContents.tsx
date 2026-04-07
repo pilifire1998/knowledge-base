@@ -152,6 +152,19 @@ export default function TableOfContents({ showProgress = true }: TableOfContents
           ))}
         </nav>
 
+        {/* Back to top */}
+        {showBackTop && (
+          <button
+            onClick={scrollToTop}
+            className="mt-4 sm:mt-6 w-full py-2.5 px-3 text-sm text-center border border-[var(--color-border)] rounded hover:bg-[var(--color-primary)] hover:text-[var(--color-bg)] transition-colors flex items-center justify-center gap-2 min-h-[44px]"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+            </svg>
+            返回顶部
+          </button>
+        )}
+
         {/* Quick jump - hidden on mobile */}
         <div className="mt-4 pt-4 border-t border-[var(--color-border)]/20 hidden sm:block">
           <div className="text-xs text-muted mb-2">快捷键</div>
@@ -162,19 +175,6 @@ export default function TableOfContents({ showProgress = true }: TableOfContents
           </div>
         </div>
       </div>
-
-      {/* Floating Back to top - fixed position */}
-      {showBackTop && (
-        <button
-          onClick={scrollToTop}
-          className="fixed bottom-6 right-6 z-50 w-12 h-12 rounded-full bg-[var(--color-surface)] border border-[var(--color-border)] shadow-lg hover:bg-[var(--color-primary)] hover:text-[var(--color-bg)] hover:border-[var(--color-primary)] transition-all flex items-center justify-center"
-          title="返回顶部"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
-          </svg>
-        </button>
-      )}
     </div>
   );
 }
