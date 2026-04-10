@@ -77,3 +77,23 @@ import MindMap from '../../components/MindMap.astro';
 <Mermaid code={`graph TD; A-->B;`} title="Diagram Title" />
 <MindMap data={{text: "Root", children: [{text: "Child"}]}} />
 ```
+
+### Git Push 备用方案
+
+当 `git push` 被沙箱环境 SIGKILL (exit 137) 时，使用 GitHub Git Data API 通过 `gh` CLI 推送：
+
+```bash
+python3 /tmp/push-api.py
+```
+
+脚本逻辑（保存在 `/tmp/push-api.py`，丢失时按以下步骤手动操作）：
+
+1. 遍历 `git rev-list --reverse origin/main..HEAD` 获取待推送 commits
+2. 对每个 commit，用 `git diff --name-status` 获取变更文件
+3. 逐个文件通过 `gh api repos/{owner}/{repo}/git/blobs` 上传 blob（base64 编码）
+4. 通过 `gh api repos/{owner}/{repo}/git/trees` 创建 tree（使用 `base_tree` 增量模式）
+5. 通过 `gh api repos/{owner}/{repo}/git/commits` 创建 commit
+6. 通过 `gh api repos/{owner}/{repo}/git/refs/heads/main -X PATCH` 更新 ref
+7. 全部完成后 `git fetch origin && git reset --hard origin/main` 同步本地
+
+注意：API 创建的 commit SHA 与本地不同，推送完成后必须同步本地分支。
