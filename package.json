@@ -9,8 +9,7 @@
     "preview": "astro preview",
     "astro": "astro",
     "new:article": "node scripts/new-article.js",
-    "generate-search-index": "node scripts/generate-search-index.mjs",
-    "postbuild": "pagefind --site dist"
+    "generate-search-index": "node scripts/generate-search-index.mjs"
   },
   "dependencies": {
     "@astrojs/mdx": "^4.0.0",
