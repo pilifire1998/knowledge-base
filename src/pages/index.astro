@@ -32,7 +32,7 @@ const sortedArticles = articles
 
   <section class="container pb-24">
     <h2 class="text-h2 text-primary mb-8">最新文章</h2>
-    <div class="grid gap-6 md:grid-cols-2">
+    <div class="grid gap-5 sm:gap-6 md:grid-cols-2">
       {sortedArticles.map((article) => (
         <ArticleCard
           title={article.data.title}
