@@ -8,6 +8,20 @@ interface SearchResult {
   excerpt: string;
 }
 
+interface Article {
+  url: string;
+  title: string;
+  description: string;
+  tags: string[];
+  content: string;
+}
+
+function highlightMatch(text: string, query: string): string {
+  if (!query) return text;
+  const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+  return text.replace(regex, '<mark class="bg-yellow-200 dark:bg-yellow-800">$1</mark>');
+}
+
 // Declare Pagefind type
 declare global {
   interface Window {
@@ -166,24 +180,27 @@ export default function SearchModal() {
           );
           setResults(data);
         } else {
-          // Fallback: search in known articles (for dev mode)
-          const articles = [
-            { url: '/articles/getting-started/', title: '开始使用知识库', excerpt: '快速了解如何使用这个前端知识库系统' },
-          ];
+          // Fallback: search using the pre-built search index
+          const response = await fetch('/search-index.json');
+          if (response.ok) {
+            const { articles } = await response.json() as { articles: Article[] };
+            const q = query.toLowerCase();
 
-          const filtered = articles.filter(
-            (a) =>
-              a.title.toLowerCase().includes(query.toLowerCase()) ||
-              a.excerpt.toLowerCase().includes(query.toLowerCase())
-          );
+            const filtered = articles.filter((a: Article) =>
+              a.title.toLowerCase().includes(q) ||
+              a.description.toLowerCase().includes(q) ||
+              a.content.toLowerCase().includes(q) ||
+              a.tags.some((t: string) => t.toLowerCase().includes(q))
+            );
 
-          setResults(
-            filtered.map((a) => ({
-              url: a.url,
-              meta: { title: a.title },
-              excerpt: a.excerpt,
-            }))
-          );
+            setResults(
+              filtered.slice(0, 10).map((a: Article) => ({
+                url: a.url,
+                meta: { title: a.title },
+                excerpt: highlightMatch(a.description, query),
+              }))
+            );
+          }
         }
         setSelectedIndex(0);
       } catch (e) {
@@ -243,7 +260,7 @@ export default function SearchModal() {
             <div className="px-4 py-10 sm:py-8 text-center text-muted">
               <p className="text-sm sm:text-base">未找到相关内容</p>
               {!pagefindLoaded && (
-                <p className="text-xs mt-3 hidden sm:block">开发模式下仅搜索示例文章<br />完整搜索请运行 <code className="px-1.5 py-0.5 bg-[var(--color-bg)] rounded">pnpm build &amp;&amp; pnpm preview</code></p>
+                <p className="text-xs mt-3 hidden sm:block">生产环境请运行 <code className="px-1.5 py-0.5 bg-[var(--color-bg)] rounded">pnpm build &amp;&amp; pnpm preview</code></p>
               )}
             </div>
           )}
@@ -252,7 +269,7 @@ export default function SearchModal() {
             <>
               {!pagefindLoaded && (
                 <div className="px-4 py-2 text-[11px] sm:text-xs text-muted bg-[var(--color-bg)] border-b border-[var(--color-border)]">
-                  开发模式 - 仅显示示例文章
+                  开发模式搜索
                 </div>
               )}
               {results.map((result, index) => (
@@ -282,7 +299,7 @@ export default function SearchModal() {
             <div className="px-4 py-10 sm:py-8 text-center text-muted">
               <p className="text-sm sm:text-base">输入关键词开始搜索</p>
               {!pagefindLoaded && (
-                <p className="text-xs mt-3 hidden sm:block">开发模式 - 完整搜索请运行 <code className="px-1.5 py-0.5 bg-[var(--color-bg)] rounded">pnpm build &amp;&amp; pnpm preview</code></p>
+                <p className="text-xs mt-3 hidden sm:block">生产环境请运行 <code className="px-1.5 py-0.5 bg-[var(--color-bg)] rounded">pnpm build &amp;&amp; pnpm preview</code></p>
               )}
             </div>
           )}

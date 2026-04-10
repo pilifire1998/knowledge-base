@@ -3,12 +3,13 @@
   "type": "module",
   "version": "0.0.1",
   "scripts": {
-    "dev": "astro dev",
+    "dev": "node scripts/generate-search-index.mjs && astro dev",
     "start": "astro dev",
-    "build": "astro build && pagefind --site dist",
+    "build": "node scripts/generate-search-index.mjs && astro build && pagefind --site dist",
     "preview": "astro preview",
     "astro": "astro",
     "new:article": "node scripts/new-article.js",
+    "generate-search-index": "node scripts/generate-search-index.mjs",
     "postbuild": "pagefind --site dist"
   },
   "dependencies": {
