@@ -2,6 +2,8 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+任何回答都说中文
+
 ## Project Overview
 
 A frontend knowledge base website built with Astro 5.0, featuring MDX articles, full-text search, dark mode, and interactive components. Content is primarily in Chinese.
